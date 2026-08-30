@@ -14,12 +14,10 @@ export async function onRequestPost(context) {
     const { message, image, history = [] } = payload;
 
     const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمعماري الاستشاري (Principal UI/UX Systems Architect).
-مهمتك: مناقشة متطلبات العميل، تحليل أي تصاميم أو لقطات شاشة مرفقة بدقة معمارية، تقديم استشارات تصميمية خفيفة (Zero-bloat) وعصرية تدعم العربية (RTL)، وتوضيح أي غموض في الهيكل قبل مرحلة صياغة المخطط الهندسي.
-كن مباشراً، مهنياً، وقدم ملاحظات هندسية واضحة حول توزيع العناصر والنسق اللوني.`;
+مهمتك: مناقشة متطلبات العميل، تحليل أي تصاميم أو لقطات شاشة مرفقة بدقة معمارية، تقديم استشارات تصميمية خفيفة (Zero-bloat) وعصرية تدعم العربية (RTL)، وتوضيح أي غموض في الهيكل قبل مرحلة صياغة المخطط الهندسي.`;
 
     const messages = [{ role: "system", content: systemPrompt }];
 
-    // تضمين سجل الحوار السابق
     for (const item of history.slice(0, -1)) {
       messages.push({
         role: item.role === "assistant" ? "assistant" : "user",
@@ -27,7 +25,6 @@ export async function onRequestPost(context) {
       });
     }
 
-    // إرفاق الرسالة الحالية مع دعم الرؤية البصرية (Vision)
     if (image) {
       messages.push({
         role: "user",
