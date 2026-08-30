@@ -1,11 +1,11 @@
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
-    const apiKey = env.OPENROUTER_API_KEY;
+    const apiKey = env.PLANNER_API_KEY || env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "مفتاح OPENROUTER_API_KEY غير معرّف في بيئة Cloudflare." }),
+        JSON.stringify({ error: "مفتاح PLANNER_API_KEY غير معرّف في بيئة Cloudflare." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
@@ -21,9 +21,9 @@ export async function onRequestPost(context) {
     }
 
     const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمخطط المعماري للواجهات الرقمية (Principal UI/UX Systems Architect).
-مهمتك: التفكير المعماري العميق في متطلبات العميل، وتصميم واجهة مستخدم فائقة الجودة، حديثة، خفيفة (Zero-bloat)، وتدعم اللغة العربية والاتجاه RTL كمعيار أساسي.
+مهمتك: التفكير المعماري في متطلبات العميل، وتصميم واجهة مستخدم فائقة الجودة، حديثة، خفيفة (Zero-bloat)، وتدعم اللغة العربية والاتجاه RTL كمعيار أساسي.
 
-يجب أن تكون مخرجاتك حصراً كائن JSON صافٍ مطابق للهيكل الهندسي التالي دون أي مقدمات، شروحات، أو علامات Markdown خارج كائن الـ JSON:
+يجب أن تكون مخرجاتك حصراً كائن JSON صافٍ مطابق للهيكل الهندسي التالي دون أي نصوص إضافية أو علامات Markdown خارج كائن الـ JSON:
 
 {
   "project_name": "اسم المشروع",
@@ -74,7 +74,7 @@ export async function onRequestPost(context) {
         "X-Title": "Edge Workbench Architecture Planner"
       },
       body: JSON.stringify({
-        model: "anthropic/claude-3.7-sonnet",
+        model: "anthropic/claude-sonnet-5",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
