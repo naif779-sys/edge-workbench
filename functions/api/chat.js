@@ -1,80 +1,77 @@
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
   try {
+    const { request, env } = context;
     const apiKey = env.OPENROUTER_API_KEY;
+
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "OPENROUTER_API_KEY غير معرف في بيئة Cloudflare" }),
-        { status: 500, headers: { "Content-Type": "application/json; charset=utf-8" } }
-      );
-    }
-
-    const body = await request.json();
-    const {
-      messages = [],
-      tools = [],
-      reasoningEffort = "medium",
-      model = "anthropic/claude-sonnet-5",
-    } = body;
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "حقل messages مطلوب ويجب أن يكون مصفوفة غير فارغة" }),
+        JSON.stringify({ error: "مفتاح OPENROUTER_API_KEY غير معرّف في إعدادات البيئة السحابية." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
 
-    const payload = {
-      model,
-      messages,
-      stream: true,
-      reasoning: {
-        effort: reasoningEffort,
-      },
+    const payload = await request.json();
+    const incomingMessages = Array.isArray(payload.messages) ? payload.messages : [];
+
+    const systemPrompt = {
+      role: "system",
+      content: "أنت المساعد البرمجي الذكي Claude Sonnet 5 المطور من قِبل Anthropic والمشغّل عبر OpenRouter داخل منصة Edge Agentic Workbench. التزم باللغة العربية الفصحى، الدقة الهندسية، والأسلوب المباشر. عند طلب تنفيذ أكواد جافاسكريبت، استخدم أداة run_javascript المتاحة لك."
     };
 
-    if (Array.isArray(tools) && tools.length > 0) {
-      payload.tools = tools;
-      payload.tool_choice = "auto";
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "run_javascript",
+          description: "تنفيذ كود JavaScript اختباري داخل بيئة المعاينة الحية وإرجاع النتيجة.",
+          parameters: {
+            type: "object",
+            properties: {
+              code: {
+                type: "string",
+                description: "كود JavaScript المراد تنفيذه."
+              }
+            },
+            required: ["code"]
+          }
+        }
+      }
+    ];
+
+    const bodyData = {
+      model: "anthropic/claude-sonnet-5",
+      messages: [systemPrompt, ...incomingMessages],
+      tools: tools,
+      tool_choice: "auto"
+    };
+
+    if (payload.reasoning_effort) {
+      bodyData.reasoning = { effort: payload.reasoning_effort };
     }
 
-    const openrouterResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": env.SITE_URL || "https://localhost",
-        "X-Title": "Edge Agentic Workbench",
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://edge-workbench.pages.dev",
+        "X-Title": "Edge Agentic Workbench"
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(bodyData)
     });
 
-    if (!openrouterResponse.ok) {
-      const errorText = await openrouterResponse.text();
-      return new Response(
-        JSON.stringify({
-          error: "خطأ في استجابة مزود النموذج",
-          status: openrouterResponse.status,
-          details: errorText,
-        }),
-        {
-          status: openrouterResponse.status,
-          headers: { "Content-Type": "application/json; charset=utf-8" },
-        }
-      );
-    }
+    const responseData = await response.text();
 
-    return new Response(openrouterResponse.body, {
-      status: 200,
+    return new Response(responseData, {
+      status: response.status,
       headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive",
-        "X-Accel-Buffering": "no",
-      },
+        "Content-Type": "application/json; charset=utf-8",
+        "Access-Control-Allow-Origin": "*"
+      }
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: "خطأ داخلي في وسيط الحافة", details: err.message }),
+      JSON.stringify({ error: `خطأ في المعالجة السحابية: ${err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   }
