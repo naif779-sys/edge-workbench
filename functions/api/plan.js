@@ -11,19 +11,21 @@ export async function onRequestPost(context) {
     }
 
     const payload = await request.json();
-    const userPrompt = payload.prompt || "";
+    const history = payload.history || [];
+    const image = payload.image || null;
+    const directPrompt = payload.prompt || "";
 
-    if (!userPrompt) {
+    if (history.length === 0 && !directPrompt && !image) {
       return new Response(
-        JSON.stringify({ error: "يرجى إرسال متطلبات المشروع في حقل prompt." }),
+        JSON.stringify({ error: "لا توجد متطلبات أو سجل محادثة لتوليد المخطط. يرجى كتابة متطلبات المشروع أولاً." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
 
     const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمخطط المعماري للواجهات الرقمية (Principal UI/UX Systems Architect).
-مهمتك: التفكير المعماري في متطلبات العميل، وتصميم واجهة مستخدم فائقة الجودة، حديثة، خفيفة (Zero-bloat)، وتدعم اللغة العربية والاتجاه RTL كمعيار أساسي.
+مهمتك: مراجعة كامل الحوار والمتطلبات السابقة وتحليل أي صور مرفقة، ثم صياغة مخطط معماري متكامل (JSON Blueprint) فائق الجودة، حديث، خفيف (Zero-bloat)، ويدعم اللغة العربية (RTL).
 
-يجب أن تكون مخرجاتك حصراً كائن JSON صافٍ مطابق للهيكل الهندسي التالي دون أي نصوص إضافية أو علامات Markdown خارج كائن الـ JSON:
+يجب أن تكون مخرجاتك حصراً كائن JSON صافٍ مطابق للهيكل التالي دون أي مقدمات أو علامات Markdown:
 
 {
   "project_name": "اسم المشروع",
@@ -65,6 +67,34 @@ export async function onRequestPost(context) {
   ]
 }`;
 
+    const messages = [{ role: "system", content: systemPrompt }];
+
+    if (history.length > 0) {
+      for (const item of history) {
+        if (item.image) {
+          messages.push({
+            role: item.role === "assistant" ? "assistant" : "user",
+            content: [
+              { type: "text", text: item.content || "تصميم مرجعي" },
+              { type: "image_url", image_url: { url: item.image } }
+            ]
+          });
+        } else {
+          messages.push({
+            role: item.role === "assistant" ? "assistant" : "user",
+            content: item.content || ""
+          });
+        }
+      }
+    } else if (directPrompt) {
+      messages.push({ role: "user", content: directPrompt });
+    }
+
+    messages.push({
+      role: "user",
+      content: "بناءً على كامل الحوار والتفاصيل السابقة، قم الآن بتوليد كائن الـ JSON المعماري النهائي للواجهة."
+    });
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -75,10 +105,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         model: "anthropic/claude-sonnet-5",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
+        messages: messages,
         response_format: { type: "json_object" }
       })
     });
