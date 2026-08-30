@@ -1,83 +1,119 @@
-const chatHistory = document.getElementById("chatHistory");
-const userInput = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-const reasoningEffort = document.getElementById("reasoningEffort");
+let currentBlueprint = null;
 
-let messages = [];
+// DOM Elements
+const plannerInput = document.getElementById("plannerInput");
+const generatePlanBtn = document.getElementById("generatePlanBtn");
+const planContainer = document.getElementById("planContainer");
+const approveBtn = document.getElementById("approveBtn");
 
-function appendMessage(role, content, isTool = false) {
-  const msgDiv = document.createElement("div");
-  msgDiv.className = `p-4 rounded-xl max-w-3xl leading-relaxed ${
-    role === "user" 
-      ? "bg-indigo-600/30 border border-indigo-500/40 text-indigo-100 self-end mr-auto" 
-      : "bg-slate-900/80 border border-slate-800 text-slate-200 self-start ml-auto"
-  }`;
-  
-  if (isTool) {
-    msgDiv.innerHTML = `<span class="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded border border-emerald-800">أداة</span><pre class="mt-2 text-xs bg-black/50 p-2 rounded overflow-x-auto text-emerald-300 font-mono">${content}</pre>`;
-  } else {
-    msgDiv.textContent = content;
+const sandboxFrame = document.getElementById("sandboxFrame");
+const rawCodeViewer = document.getElementById("rawCodeViewer");
+const executionStatus = document.getElementById("executionStatus");
+const tokenStats = document.getElementById("tokenStats");
+
+const tabPreview = document.getElementById("tabPreview");
+const tabCode = document.getElementById("tabCode");
+
+// 1. Generate Blueprint via MiniMax
+async function generatePlan() {
+  const prompt = plannerInput.value.trim();
+  if (!prompt) return;
+
+  generatePlanBtn.disabled = true;
+  approveBtn.disabled = true;
+  planContainer.innerHTML = '<div class="text-indigo-400 animate-pulse">جاري تحليل المتطلبات وصياغة المخطط الهيكلي عبر MiniMax...</div>';
+
+  try {
+    const res = await fetch("/api/plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(data.error?.message || data.error || "فشل توليد المخطط");
+    }
+
+    let blueprintText = data.choices?.[0]?.message?.content || "";
+    try {
+      currentBlueprint = JSON.parse(blueprintText);
+    } catch {
+      currentBlueprint = blueprintText;
+    }
+
+    planContainer.innerHTML = `<pre class="text-emerald-300 font-mono text-xs whitespace-pre-wrap">${typeof currentBlueprint === 'object' ? JSON.stringify(currentBlueprint, null, 2) : currentBlueprint}</pre>`;
+    approveBtn.disabled = false;
+  } catch (err) {
+    planContainer.innerHTML = `<div class="text-red-400">خطأ في التخطيط: ${err.message}</div>`;
+  } finally {
+    generatePlanBtn.disabled = false;
   }
-  
-  chatHistory.appendChild(msgDiv);
-  chatHistory.scrollTop = chatHistory.scrollHeight;
-  return msgDiv;
 }
 
-async function sendMessage() {
-  const text = userInput.value.trim();
-  if (!text) return;
+// 2. Approve and Implement via Claude Sonnet
+async function executeImplementation() {
+  if (!currentBlueprint) return;
 
-  appendMessage("user", text);
-  messages.push({ role: "user", content: text });
-  userInput.value = "";
+  approveBtn.disabled = true;
+  executionStatus.innerHTML = '<span class="text-amber-400 animate-pulse">جاري التشييد البرمجي عبر Claude Sonnet...</span>';
 
-  const placeholder = appendMessage("assistant", "جاري التحليل والتنفيذ...");
+  const blueprintStr = typeof currentBlueprint === 'object' ? JSON.stringify(currentBlueprint, null, 2) : currentBlueprint;
+
+  const messages = [
+    {
+      role: "user",
+      content: `قم ببناء ملف ويب متكامل (Single HTML file) وفق المخطط الهيكلي التالي. استخدم Tailwind CSS عبر CDN، مع دعم كامل للغة العربية والاتجاه RTL، وكتابة أكواد Vanilla JS مدمجة لأي تفاعل مطلوب. أرجع كود الـ HTML فقط دون أي شرح أو مقدمات:\n\n${blueprintStr}`
+    }
+  ];
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: messages,
-        reasoning_effort: reasoningEffort ? reasoningEffort.value : "medium"
-      })
+      body: JSON.stringify({ messages, reasoning_effort: "high" })
     });
 
     const data = await res.json();
-
     if (!res.ok || data.error) {
-      const errMsg = data.error?.message || data.error || "حدث خطأ غير متوقع من الخادم.";
-      placeholder.innerHTML = `<span class="text-red-400 font-bold">خطأ:</span> ${errMsg}`;
-      return;
+      throw new Error(data.error?.message || data.error || "فشل التنفيذ البرمجي");
     }
 
-    const choice = data.choices?.[0]?.message;
-    if (!choice) {
-      placeholder.innerHTML = `<span class="text-yellow-400 font-bold">تنبيه:</span> لم يتم استلام محتوى. الرد الخام: <pre class="text-xs mt-2 bg-black/40 p-2 rounded">${JSON.stringify(data, null, 2)}</pre>`;
-      return;
-    }
-
-    let outputText = choice.content || "";
+    let code = data.choices?.[0]?.message?.content || "";
     
-    if (choice.tool_calls && choice.tool_calls.length > 0) {
-      const toolCall = choice.tool_calls[0];
-      const toolArgs = toolCall.function?.arguments || "{}";
-      outputText += `\n[استدعاء الأداة: ${toolCall.function?.name}]\nالمعطيات: ${toolArgs}`;
+    // Clean markdown tags if returned
+    code = code.replace(/^```html\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
+
+    // Render into iFrame
+    sandboxFrame.srcdoc = code;
+    rawCodeViewer.textContent = code;
+
+    executionStatus.innerHTML = '<span class="text-emerald-400 font-semibold">✓ تم التشييد والمعاينة الحية بنجاح</span>';
+    if (data.usage) {
+      tokenStats.textContent = `Tokens: ${data.usage.total_tokens || '-'}`;
     }
-
-    placeholder.textContent = outputText.trim() || "(تم تنفيذ الإجراء بدون نص إضافي)";
-    messages.push({ role: "assistant", content: outputText });
-
   } catch (err) {
-    placeholder.innerHTML = `<span class="text-red-400 font-bold">فشل الاتصال:</span> ${err.message}`;
+    executionStatus.innerHTML = `<span class="text-red-400">خطأ في التنفيذ: ${err.message}</span>`;
+  } finally {
+    approveBtn.disabled = false;
   }
 }
 
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+// 3. Tab Navigation
+tabPreview.addEventListener("click", () => {
+  tabPreview.className = "text-xs px-2.5 py-1 bg-slate-800 text-slate-200 rounded-lg font-medium";
+  tabCode.className = "text-xs px-2.5 py-1 bg-transparent text-slate-400 hover:text-slate-200 rounded-lg font-medium";
+  sandboxFrame.classList.remove("hidden");
+  rawCodeViewer.classList.add("hidden");
 });
+
+tabCode.addEventListener("click", () => {
+  tabCode.className = "text-xs px-2.5 py-1 bg-slate-800 text-slate-200 rounded-lg font-medium";
+  tabPreview.className = "text-xs px-2.5 py-1 bg-transparent text-slate-400 hover:text-slate-200 rounded-lg font-medium";
+  rawCodeViewer.classList.remove("hidden");
+  sandboxFrame.classList.add("hidden");
+});
+
+// Event Listeners
+generatePlanBtn.addEventListener("click", generatePlan);
+approveBtn.addEventListener("click", executeImplementation);
