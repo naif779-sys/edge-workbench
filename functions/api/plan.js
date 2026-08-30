@@ -20,27 +20,49 @@ export async function onRequestPost(context) {
       );
     }
 
-    const systemPrompt = `أنت المخطط المعماري للواجهات وتجربة المستخدم (Planner).
-مهمتك: تحليل متطلبات المستخدم بدقة وتحويلها حصراً إلى مخطط هيكلي بصيغة JSON مطابق للمعايير الهندسية التالية بدون أي نص أو مقدمات خارج كائن الـ JSON:
+    const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمخطط المعماري للواجهات الرقمية (Principal UI/UX Systems Architect).
+مهمتك: التفكير المعماري العميق في متطلبات العميل، وتصميم واجهة مستخدم فائقة الجودة، حديثة، خفيفة (Zero-bloat)، وتدعم اللغة العربية والاتجاه RTL كمعيار أساسي.
+
+يجب أن تكون مخرجاتك حصراً كائن JSON صافٍ مطابق للهيكل الهندسي التالي دون أي مقدمات، شروحات، أو علامات Markdown خارج كائن الـ JSON:
 
 {
   "project_name": "اسم المشروع",
   "direction": "rtl",
-  "design_system": {
-    "primary_color": "slate-900",
-    "accent_color": "indigo-600",
+  "theme": {
+    "background": "slate-950",
+    "surface": "slate-900",
+    "primary": "indigo-600",
+    "accent": "amber-500",
+    "text_primary": "slate-100",
+    "text_secondary": "slate-400",
     "font_family": "Tajawal, sans-serif"
   },
-  "sections": [
-    {
-      "id": "hero",
-      "type": "hero_section",
-      "title": "العنوان الرئيسي",
-      "description": "الوصف التعريفي",
-      "cta": [{"text": "نص الزر", "action": "رابط أو وظيفة"}]
+  "layout": {
+    "header": {
+      "brand_name": "اسم العلامة",
+      "navigation": [{"label": "الرئيسية", "href": "#hero"}]
+    },
+    "sections": [
+      {
+        "id": "hero",
+        "type": "hero_section",
+        "title": "عنوان رئيسي جذاب وواضح",
+        "subtitle": "نص تسويقي ومعماري مركز",
+        "cta": [
+          {"text": "ابدأ الآن", "action": "#cta", "style": "primary"}
+        ]
+      }
+    ],
+    "footer": {
+      "copyright": "جميع الحقوق محفوظة",
+      "links": [{"label": "سياسة الخصوصية", "href": "#"}]
     }
-  ],
-  "interactive_logic": ["dark_mode", "mobile_menu"]
+  },
+  "interactive_specs": [
+    "mobile_drawer_toggle",
+    "smooth_scroll",
+    "modal_form_submission"
+  ]
 }`;
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -49,10 +71,10 @@ export async function onRequestPost(context) {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://edge-workbench.pages.dev",
-        "X-Title": "Edge Workbench Planner"
+        "X-Title": "Edge Workbench Architecture Planner"
       },
       body: JSON.stringify({
-        model: "minimax/minimax-01",
+        model: "anthropic/claude-3.7-sonnet",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
@@ -72,7 +94,7 @@ export async function onRequestPost(context) {
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: `خطأ في معالج التخطيط: ${err.message}` }),
+      JSON.stringify({ error: `خطأ في معالج التخطيط المعماري: ${err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   }
