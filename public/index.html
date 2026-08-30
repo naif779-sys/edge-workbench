@@ -2,49 +2,47 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Edge Agentic Workbench</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden font-sans">
+<body class="bg-slate-950 text-slate-100 flex flex-col h-[100dvh] overflow-hidden font-sans select-none">
 
   <!-- Header -->
-  <header class="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/60 backdrop-blur">
+  <header class="h-14 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 bg-slate-900/80 backdrop-blur flex-shrink-0">
     <div class="flex items-center gap-3">
       <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-      <h1 class="text-base font-semibold tracking-wide text-slate-100">Sonnet 5 Agentic Workbench</h1>
+      <h1 class="text-sm sm:text-base font-semibold tracking-wide text-slate-100">Sonnet 5 Agentic Workbench</h1>
     </div>
-    <div class="flex items-center gap-4">
-      <select id="reasoningEffort" class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-3 py-1.5 text-slate-200 outline-none">
-        <option value="low">جهد التفكير: منخفض</option>
-        <option value="medium" selected>جهد التفكير: متوسط</option>
-        <option value="high">جهد التفكير: عالي</option>
+    <div class="flex items-center gap-3">
+      <select id="reasoningEffort" class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 outline-none">
+        <option value="low">جهد: منخفض</option>
+        <option value="medium" selected>جهد: متوسط</option>
+        <option value="high">جهد: عالي</option>
       </select>
-      <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs px-3 py-1.5 rounded-lg text-slate-300 transition">جلسة جديدة</button>
+      <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs px-3 py-1.5 rounded-lg text-slate-300 transition">تحديث</button>
     </div>
   </header>
 
   <!-- Main Layout -->
-  <main class="flex-1 flex overflow-hidden">
+  <main class="flex-1 flex flex-col min-h-0 p-3 sm:p-4 gap-3">
     
-    <!-- Chat Area -->
-    <div class="flex-1 flex flex-col justify-between p-4 overflow-hidden">
-      <div id="chatHistory" class="flex-1 overflow-y-auto space-y-4 pr-2 pb-4 flex flex-col">
-        <div class="bg-slate-900 border border-slate-800 text-slate-300 p-4 rounded-xl text-sm leading-relaxed self-start max-w-2xl">
-          أهلاً بك. منصة المعالجة السحابية جاهزة لاستقبال استفساراتك وتنفيذ مهامك البرمجية عبر Claude Sonnet 5.
-        </div>
+    <!-- Chat History (Scrollable Area) -->
+    <div id="chatHistory" class="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 flex flex-col">
+      <div class="bg-slate-900 border border-slate-800 text-slate-300 p-3.5 rounded-xl text-xs sm:text-sm leading-relaxed self-start max-w-2xl">
+        أهلاً بك. تم ضبط أبعاد الواجهة لدعم التابلت وشبكة الحافة. جاهزون للبدء في دمج محرك التخطيط (MiniMax) والتنفيذ (Claude).
       </div>
+    </div>
 
-      <!-- Input Bar -->
-      <div class="mt-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2">
-        <textarea id="userInput" rows="2" placeholder="اكتب استفسارك أو أسند مهمة برمجية... (اضغط Enter للإرسال)" class="w-full bg-transparent border-0 text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none"></textarea>
-        <div class="flex justify-between items-center pt-2 border-t border-slate-800/60">
-          <span class="text-xs text-slate-500 font-mono">Edge Worker + Claude Sonnet 5</span>
-          <button id="sendBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-5 py-2 rounded-xl transition flex items-center gap-1.5">
-            <span>إرسال</span>
-            <span>←</span>
-          </button>
-        </div>
+    <!-- Input Bar (Fixed Bottom Container) -->
+    <div class="flex-shrink-0 bg-slate-900 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col gap-2 shadow-lg">
+      <textarea id="userInput" rows="2" placeholder="اكتب متطلباتك هنا... (Enter للإرسال)" class="w-full bg-transparent border-0 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none"></textarea>
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800/80">
+        <span class="text-[11px] text-slate-500 font-mono">Edge Worker + Claude Sonnet 5</span>
+        <button id="sendBtn" class="bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1">
+          <span>إرسال</span>
+          <span>←</span>
+        </button>
       </div>
     </div>
 
