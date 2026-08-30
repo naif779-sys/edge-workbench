@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edge Agentic Workbench</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    pre, code { font-family: 'JetBrains Mono', monospace; direction: ltr; text-align: left; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</head>
+<body class="h-full flex overflow-hidden">
+
+  <!-- العمود الجانبي لإدارة المهارات والأدوات -->
+  <aside class="w-80 border-l border-slate-800 bg-slate-900/50 flex flex-col justify-between hidden md:flex shrink-0">
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <h1 class="font-bold text-sm tracking-wide">Sonnet 5 Agentic Workbench</h1>
+      </div>
+      <button id="btnNewSession" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded border border-slate-700 transition">جلسة جديدة</button>
+    </div>
+
+    <!-- قائمة المهارات والأدوات -->
+    <div class="p-4 overflow-y-auto flex-1 space-y-6 custom-scroll">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold text-slate-400 uppercase">المهارات النشطة</label>
+          <button id="btnAddSkill" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">+ إضافة</button>
+        </div>
+        <div id="skillsList" class="space-y-1.5"></div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold text-slate-400 uppercase">الأدوات (Function Calling)</label>
+          <button id="btnAddTool" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">+ إضافة</button>
+        </div>
+        <div id="toolsList" class="space-y-1.5"></div>
+      </div>
+    </div>
+
+    <!-- التحكم في التفكير -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950/40 space-y-3">
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">جهد التفكير (Reasoning Effort):</label>
+        <select id="reasoningEffort" class="w-full bg-slate-900 border border-slate-700 text-xs rounded px-2 py-1.5 text-slate-200 focus:outline-none focus:border-indigo-500">
+          <option value="low">منخفض (Low)</option>
+          <option value="medium" selected>متوسط (Medium)</option>
+          <option value="high">عالي (High)</option>
+          <option value="max">أقصى (Max)</option>
+          <option value="x-high">فائق (X-High)</option>
+        </select>
+      </div>
+      <div class="text-[11px] text-slate-500 flex justify-between">
+        <span>السياق: 1M Tokens</span>
+        <span id="sessionStatus">جاهز</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- المساحة الرئيسية للدردشة والمعاينة -->
+  <main class="flex-1 flex flex-col h-full bg-slate-950 relative overflow-hidden">
+    <header class="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/30 backdrop-blur shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded font-mono">Claude Sonnet 5</span>
+        <span id="activeSkillBadge" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded">افتراضي</span>
+      </div>
+      <button id="toggleSandboxBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded border border-slate-700 flex items-center gap-1.5 transition">
+        <span>المعاينة الحية (Sandbox)</span>
+      </button>
+    </header>
+
+    <!-- منطقة الرسائل -->
+    <div id="chatStream" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scroll"></div>
+
+    <!-- حقل الإدخال -->
+    <div class="p-4 border-t border-slate-800 bg-slate-900/40 shrink-0">
+      <form id="chatForm" class="max-w-4xl mx-auto flex flex-col gap-2 bg-slate-900 border border-slate-800 focus-within:border-indigo-500 rounded-xl p-3 transition shadow-lg">
+        <textarea id="promptInput" rows="2" placeholder="اكتب استفسارك أو أسند مهمة للنموذج... (Shift + Enter لسطر جديد)" class="w-full bg-transparent border-0 text-slate-100 text-sm focus:outline-none resize-none custom-scroll placeholder:text-slate-500"></textarea>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span>جاهز للتنفيذ</span>
+          </div>
+          <button type="submit" id="btnSend" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md">
+            <span>إرسال</span>
+            <svg class="w-3.5 h-3.5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- نافذة المعاينة المنبثقة الجانبية -->
+  <aside id="sandboxDrawer" class="w-1/2 border-r border-slate-800 bg-slate-900 flex flex-col hidden transition-all duration-300">
+    <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+      <span class="text-xs font-semibold text-slate-300">معاينة الواجهات والأكواد الحية</span>
+      <button id="closeSandboxBtn" class="text-xs text-slate-400 hover:text-white">✕ إغلاق</button>
+    </div>
+    <div class="flex-1 bg-white relative">
+      <iframe id="sandboxFrame" class="w-full h-full border-0" sandbox="allow-scripts"></iframe>
+    </div>
+  </aside>
+
+  <script src="/app.js"></script>
+</body>
+</html>
