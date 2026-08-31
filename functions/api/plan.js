@@ -12,10 +12,11 @@ export async function onRequestPost(context) {
 
     const payload = await request.json();
     const history = payload.history || [];
-    const image = payload.image || null;
+    const images = payload.images || [];
+    const singleImage = payload.image || null;
     const directPrompt = payload.prompt || "";
 
-    if (history.length === 0 && !directPrompt && !image) {
+    if (history.length === 0 && !directPrompt && images.length === 0 && !singleImage) {
       return new Response(
         JSON.stringify({ error: "لا توجد مدخلات لتوليد المخطط. يرجى توضيح متطلبات المشروع أولاً." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
@@ -27,7 +28,7 @@ export async function onRequestPost(context) {
 
 القواعد المعمارية الصارمة:
 1. التجريد والشمولية: صياغة هيكل ملائم لنوع النشاط المحدد (متجر، عيادة، سوبرماركت، معرض أثاث، SaaS، portfolio).
-2. سياسة الصور: يمنع منعاً باتاً اختراع أو كتابة روابط صور خارجية عشوائية (مثل unsplash). استخدم فقط كائنات حجز المساحات الدلالية (asset_slots) مع تحديد النسبة (aspect_ratio) والوصف.
+2. سياسة الصور: يمنع منعاً باتاً اختراع أو كتابة روابط صور خارجية عشوائية. استخدم فقط كائنات حجز المساحات الدلالية (asset_slots) مع تحديد النسبة (aspect_ratio) والوصف.
 3. دعم كامل للغة العربية (RTL) ومعايير التصميم الحديثة الخفيفة (Zero-bloat).
 4. المخرجات يجب أن تكون حصراً كائن JSON صالح وخالٍ من أي نصوص أو شروحات إضافية.
 
@@ -86,9 +87,19 @@ export async function onRequestPost(context) {
 
     const messages = [{ role: "system", content: systemPrompt }];
 
+    // إضافة كامل سياق الحوار والصور السابقة
     if (history.length > 0) {
       for (const item of history) {
-        if (item.image) {
+        if (item.images && item.images.length > 0) {
+          const content = [{ type: "text", text: item.content || "مرفقات مرجعية" }];
+          item.images.forEach(img => {
+            content.push({
+              type: "image_url",
+              image_url: { url: img.base64 || img }
+            });
+          });
+          messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: content });
+        } else if (item.image) {
           messages.push({
             role: item.role === "assistant" ? "assistant" : "user",
             content: [
@@ -107,9 +118,22 @@ export async function onRequestPost(context) {
       messages.push({ role: "user", content: directPrompt });
     }
 
+    // إضافة الصور في حال تم تمريرها في الطلب الحالي مباشرة دون سجل
+    const currentImages = images.length > 0 ? images : (singleImage ? [{ base64: singleImage }] : []);
+    if (currentImages.length > 0 && history.length === 0) {
+      const userContent = [{ type: "text", text: directPrompt || "صياغة المخطط بناءً على هذه الصور المرجعية." }];
+      currentImages.forEach(img => {
+        userContent.push({
+          type: "image_url",
+          image_url: { url: img.base64 || img }
+        });
+      });
+      messages.push({ role: "user", content: userContent });
+    }
+
     messages.push({
       role: "user",
-      content: "صِغ الآن كائن الـ JSON Blueprint المعماري المكتمل بناءً على المعايير التجريدية الصارمة."
+      content: "صِغ الآن كائن الـ JSON Blueprint المعماري المكتمل بناءً على كافة المدخلات والمعايير التجريدية الصارمة."
     });
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
