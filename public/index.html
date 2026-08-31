@@ -36,7 +36,7 @@
   <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.5 Universal</span></h1>
+      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.6 Universal</span></h1>
     </div>
     
     <div class="flex items-center gap-2">
@@ -44,7 +44,7 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
         <span>تصدير HTML</span>
       </button>
-      <button onclick="resetSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition min-h-[36px]">
+      <button onclick="startNewSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition min-h-[36px]">
         جلسة جديدة
       </button>
     </div>
@@ -73,7 +73,7 @@
       <!-- واجهة النقاش -->
       <div id="view-chat" class="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm">
-          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 leading-relaxed text-slate-300">
+          <div id="welcome-msg" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 leading-relaxed text-slate-300">
             أهلاً بك. ناقش متطلبات أي مشروع تريده، ارفع صوراً للمحاكاة، ثم اضغط <strong>توليد المخطط</strong>.
           </div>
         </div>
@@ -173,14 +173,66 @@
     let conversationHistory = [];
     let isFullScreen = false;
 
+    // استرجاع الحالة المحفوظة بالكامل عند فتح الصفحة
     window.addEventListener('DOMContentLoaded', () => {
-      const savedText = localStorage.getItem('draft_prompt');
-      if (savedText) document.getElementById('prompt-input').value = savedText;
+      loadCurrentSession();
     });
 
+    function saveCurrentSession() {
+      const state = {
+        history: conversationHistory,
+        blueprint: currentBlueprint,
+        code: currentGeneratedCode,
+        draft: document.getElementById('prompt-input').value
+      };
+      localStorage.setItem('workbench_active_session', JSON.stringify(state));
+    }
+
+    function loadCurrentSession() {
+      try {
+        const raw = localStorage.getItem('workbench_active_session');
+        if (!raw) return;
+        const state = JSON.parse(raw);
+
+        if (state.draft) document.getElementById('prompt-input').value = state.draft;
+
+        if (state.history && state.history.length > 0) {
+          conversationHistory = state.history;
+          const welcome = document.getElementById('welcome-msg');
+          if (welcome) welcome.remove();
+
+          conversationHistory.forEach(item => {
+            appendMessage(item.role, item.content, item.images, false);
+          });
+        }
+
+        if (state.blueprint) {
+          currentBlueprint = state.blueprint;
+          document.getElementById('blueprint-code').textContent = typeof state.blueprint === 'string' ? state.blueprint : JSON.stringify(state.blueprint, null, 2);
+          const btn = document.getElementById('btn-approve');
+          btn.disabled = false;
+          btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30';
+        }
+
+        if (state.code) {
+          currentGeneratedCode = state.code;
+          document.getElementById('source-code').textContent = state.code;
+          document.getElementById('sandbox-frame').srcdoc = state.code;
+          document.getElementById('sandbox-status').classList.add('hidden');
+          document.getElementById('refine-bar').classList.remove('hidden');
+
+          const exportBtn = document.getElementById('btn-export');
+          exportBtn.classList.remove('hidden');
+          exportBtn.disabled = false;
+          exportBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-900/30 min-h-[36px]';
+        }
+      } catch (e) {
+        console.error('فشل استرجاع الجلسة:', e);
+      }
+    }
+
     function saveDraftText() {
-      const val = document.getElementById('prompt-input').value;
-      localStorage.setItem('draft_prompt', val);
+      saveCurrentSession();
     }
 
     function switchLeftTab(tab) {
@@ -271,7 +323,7 @@
       });
     }
 
-    function appendMessage(role, text, images = []) {
+    function appendMessage(role, text, images = [], shouldSave = true) {
       const chat = document.getElementById('chat-messages');
       const msgDiv = document.createElement('div');
       
@@ -293,6 +345,8 @@
 
       chat.appendChild(msgDiv);
       chat.scrollTop = chat.scrollHeight;
+
+      if (shouldSave) saveCurrentSession();
     }
 
     async function sendConsultationMessage() {
@@ -305,9 +359,9 @@
       conversationHistory.push({ role: 'user', content: text, images: currentImages });
 
       input.value = '';
-      localStorage.removeItem('draft_prompt');
       attachedImages = [];
       renderImagesPreview();
+      saveCurrentSession();
 
       const loadingMsg = document.createElement('div');
       loadingMsg.className = 'text-xs text-indigo-400 italic p-2';
@@ -326,6 +380,7 @@
         if (data.reply) {
           appendMessage('assistant', data.reply);
           conversationHistory.push({ role: 'assistant', content: data.reply });
+          saveCurrentSession();
         } else {
           appendMessage('assistant', data.error || 'تعذر استلام الرد.');
         }
@@ -343,7 +398,6 @@
       if (text || currentImages.length > 0) {
         conversationHistory.push({ role: 'user', content: text, images: currentImages });
         input.value = '';
-        localStorage.removeItem('draft_prompt');
         attachedImages = [];
         renderImagesPreview();
       }
@@ -366,6 +420,7 @@
         const btn = document.getElementById('btn-approve');
         btn.disabled = false;
         btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30';
+        saveCurrentSession();
       } catch (e) {
         codeEl.textContent = '// خطأ في توليد المخطط: ' + e.message;
       }
@@ -409,6 +464,7 @@
         exportBtn.classList.remove('hidden');
         exportBtn.disabled = false;
         exportBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-900/30 min-h-[36px]';
+        saveCurrentSession();
       } catch (e) {
         spinner.classList.add('hidden');
         statusText.innerHTML = `<span class="text-rose-400 font-bold">خطأ في التشييد:</span><br>${e.message}`;
@@ -453,6 +509,7 @@
         
         status.classList.add('hidden');
         spinner.classList.add('hidden');
+        saveCurrentSession();
       } catch (e) {
         spinner.classList.add('hidden');
         statusText.innerHTML = `<span class="text-rose-400 font-bold">خطأ أثناء التعديل:</span><br>${e.message}`;
@@ -472,9 +529,17 @@
       URL.revokeObjectURL(url);
     }
 
-    function resetSession() {
-      if (confirm('هل تريد بدء جلسة عمل جديدة؟')) {
-        localStorage.removeItem('draft_prompt');
+    function startNewSession() {
+      if (confirm('هل تريد بدء جلسة جديدة وأرشفة الجلسة الحالية؟')) {
+        // حفظ الجلسة المنتهية في سجل الأرشيف (آخر 3 جلسات)
+        const raw = localStorage.getItem('workbench_active_session');
+        if (raw) {
+          let sessions = JSON.parse(localStorage.getItem('workbench_saved_sessions') || '[]');
+          sessions.unshift(JSON.parse(raw));
+          if (sessions.length > 3) sessions = sessions.slice(0, 3);
+          localStorage.setItem('workbench_saved_sessions', JSON.stringify(sessions));
+        }
+        localStorage.removeItem('workbench_active_session');
         location.reload();
       }
     }
