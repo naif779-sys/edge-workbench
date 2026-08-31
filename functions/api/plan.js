@@ -1,83 +1,77 @@
 export async function onRequestPost(context) {
+  const { request, env } = context;
+
   try {
-    const { request, env } = context;
     const body = await request.json();
-    const { history, images } = body;
+    const { prompt, images = [], messages = [] } = body;
 
-    // جلب وتطهير المفاتيح المتاحة
-    const rawKeys = [env.PLANNER_API_KEY, env.OPENROUTER_API_KEY, env.BUILDER_API_KEY].filter(Boolean);
-    const keys = rawKeys.map(k => k.trim().replace(/^["']|["']$/g, ''));
+    const apiKey = env.OPENROUTER_API_KEY || env.PLANNER_API_KEY || env.BUILDER_API_KEY;
 
-    if (keys.length === 0) {
-      return new Response(JSON.stringify({ error: "لم يتم العثور على أي مفتاح API في متغيرات بيئة Cloudflare." }), {
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "لم يتم العثور على مفتاح API في متغيرات البيئة بـ Cloudflare." }), {
         status: 500,
         headers: { "Content-Type": "application/json; charset=utf-8" }
       });
     }
 
-    const systemPrompt = `You are an elite Software Solutions Architect. Generate a comprehensive JSON blueprint for the requested single-file web application.
-Return ONLY valid raw JSON with no Markdown wrapping, backticks, or preamble.
-JSON structure:
+    const systemPrompt = `أنت مهندس معماري ومصمم واجهات ويب خبير.
+قم بتحليل طلب المستخدم وبناء كائن JSON نقي (Blueprint) يصف هيكل ومكونات الصفحة بدقة.
+يجب أن يكون الرد عبارة عن كائن JSON فقط يبدأ بـ { وينتهي بـ } دون أي كتل كود ماركداون.
+
+الهيكل المطلوب لكائن JSON:
 {
-  "project_name": "string",
-  "theme": { "primary": "string", "background": "string", "direction": "rtl" },
-  "layout": { "header": {}, "sections": [], "footer": {} },
-  "components": [],
-  "functionalities": []
+  "theme": { "mode": "dark|light", "primary": "hex/color", "accent": "hex/color", "bg": "hex/color" },
+  "layout": { "rtl": true, "hasNavbar": true, "hasFooter": true },
+  "sections": [
+    {
+      "id": "section_id",
+      "type": "hero|features|products|cta|footer",
+      "title": "العنوان",
+      "subtitle": "الوصف الفرعي",
+      "components": []
+    }
+  ]
 }`;
 
-    const messages = [
-      { role: "system", content: systemPrompt }
+    const payloadMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages,
+      { role: "user", content: prompt }
     ];
 
-    if (Array.isArray(history)) {
-      history.forEach(h => {
-        if (h.role && h.content) messages.push({ role: h.role, content: h.content });
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey.trim()}`,
+        "HTTP-Referer": "https://edge-workbench.pages.dev",
+        "X-Title": "Edge Workbench"
+      },
+      body: JSON.stringify({
+        model: "anthropic/claude-3.5-haiku",
+        messages: payloadMessages,
+        temperature: 0.2
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      return new Response(JSON.stringify({ error: `خطأ استجابة (${response.status}): ${errText}` }), {
+        status: response.status,
+        headers: { "Content-Type": "application/json; charset=utf-8" }
       });
     }
 
-    let lastError = null;
+    const data = await response.json();
+    const rawContent = data.choices?.[0]?.message?.content || "";
+    const cleanJson = rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
-    for (const key of keys) {
-      try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${key}`,
-            "HTTP-Referer": "https://njagentic.online",
-            "X-Title": "Edge Workbench - Planner"
-          },
-          body: JSON.stringify({
-            model: "deepseek/deepseek-chat",
-            messages: messages,
-            temperature: 0.2
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const blueprint = data.choices?.[0]?.message?.content || "";
-          return new Response(JSON.stringify({ blueprint }), {
-            headers: { "Content-Type": "application/json; charset=utf-8" }
-          });
-        }
-
-        const errText = await response.text();
-        const masked = key.substring(0, 8) + "..." + key.substring(key.length - 4);
-        lastError = `مفتاح (${masked}) فشل (${response.status}): ${errText}`;
-      } catch (e) {
-        lastError = e.message;
-      }
-    }
-
-    return new Response(JSON.stringify({ error: lastError || "فشل الاتصال بجميع المفاتيح المسجلة." }), {
-      status: 401,
+    return new Response(JSON.stringify({ blueprint: JSON.parse(cleanJson) }), {
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: `خطأ في معالج التخطيط: ${err.message}` }), {
+    return new Response(JSON.stringify({ error: `خطأ في المعالجة: ${err.message}` }), {
       status: 500,
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });
