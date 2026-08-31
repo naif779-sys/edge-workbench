@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="h-full bg-slate-950 text-slate-100">
+<html lang="ar" dir="rtl" class="h-[100dvh] bg-slate-950 text-slate-100">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -13,13 +13,13 @@
     code, pre { font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden select-none bg-slate-950">
+<body class="h-[100dvh] flex flex-col overflow-hidden select-none bg-slate-950">
 
-  <!-- الترويسة العلوية -->
-  <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
+  <!-- الترويسة العلوية العامة -->
+  <header class="h-11 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-xs tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded-full mr-1">Universal Engine</span></h1>
+      <h1 class="font-bold text-xs tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded-full mr-1">v2.2 Universal</span></h1>
     </div>
     
     <div class="flex items-center gap-2">
@@ -33,24 +33,33 @@
     </div>
   </header>
 
-  <!-- مساحة العمل الرئيسية -->
+  <!-- مساحة العمل المقسمة -->
   <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 min-h-0 overflow-hidden">
 
-    <!-- العمود الأيمن: النقاش، التحليل، والمخطط -->
+    <!-- العمود الأيمن: المستشار والمخطط -->
     <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-lg overflow-hidden min-h-0">
-      <div class="h-10 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-2.5 shrink-0">
-        <span class="text-[11px] font-semibold text-slate-300">المستشار المعماري (Claude Sonnet)</span>
-        <div class="flex bg-slate-950 p-0.5 rounded border border-slate-800 text-[11px]">
-          <button id="tab-chat" onclick="switchLeftTab('chat')" class="px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium">النقاش والمدخلات</button>
-          <button id="tab-blueprint" onclick="switchLeftTab('blueprint')" class="px-2.5 py-0.5 rounded text-slate-400 hover:text-white">المخطط (Blueprint)</button>
+      
+      <!-- ترويسة العمود الأيمن مع زر الاعتماد العلوي الثابت -->
+      <div class="h-11 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-2.5 shrink-0 gap-2">
+        <div class="flex items-center gap-1.5">
+          <div class="flex bg-slate-950 p-0.5 rounded border border-slate-800 text-[11px]">
+            <button id="tab-chat" onclick="switchLeftTab('chat')" class="px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium">النقاش</button>
+            <button id="tab-blueprint" onclick="switchLeftTab('blueprint')" class="px-2.5 py-0.5 rounded text-slate-400 hover:text-white">المخطط (JSON)</button>
+          </div>
         </div>
+
+        <!-- زر الاعتماد مثبت في الأعلى ومرئي دائماً فور توفر المخطط -->
+        <button id="btn-approve" onclick="approveAndImplement()" disabled class="bg-slate-800 text-slate-500 cursor-not-allowed px-3 py-1 rounded text-xs font-bold transition flex items-center gap-1">
+          <span>اعتماد المخطط وتشييده</span>
+          <span>←</span>
+        </button>
       </div>
 
       <!-- واجهة النقاش -->
       <div id="view-chat" class="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div id="chat-messages" class="flex-1 p-2.5 overflow-y-auto space-y-2 text-xs">
           <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700/60 leading-relaxed text-slate-300">
-            أهلاً بك. ناقش متطلبات أي مشروع تريده (متجر، عيادة، معرض، منصة)، ارفع صوراً للمحاكاة، ثم اضغط <strong>توليد المخطط</strong>.
+            أهلاً بك. ناقش متطلبات أي مشروع تريده، ارفع صوراً للمحاكاة، ثم اضغط <strong>توليد المخطط</strong>.
           </div>
         </div>
 
@@ -75,19 +84,12 @@
       <!-- واجهة المخطط المعماري الهيكلي -->
       <div id="view-blueprint" class="flex-1 hidden flex-col min-h-0 overflow-hidden bg-slate-950">
         <pre id="blueprint-code" class="flex-1 min-h-0 p-2.5 overflow-y-auto text-[11px] text-emerald-400 selection:bg-emerald-900 leading-tight">// سيظهر كائن الـ JSON المعماري هنا...</pre>
-        <div class="p-2 bg-slate-900 border-t border-slate-800 flex justify-between items-center shrink-0">
-          <span class="text-[10px] text-slate-400">بوابة الاعتماد البشري (HITL)</span>
-          <button id="btn-approve" onclick="approveAndImplement()" disabled class="bg-slate-800 text-slate-500 cursor-not-allowed px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1">
-            <span>اعتماد المخطط وتشييده</span>
-            <span>←</span>
-          </button>
-        </div>
       </div>
     </section>
 
     <!-- العمود الأيسر: المعاينة الحية والكود البرمجي -->
     <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-lg overflow-hidden min-h-0">
-      <div class="h-10 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-2.5 shrink-0">
+      <div class="h-11 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-2.5 shrink-0">
         <span class="text-[11px] font-semibold text-slate-300">بيئة المعاينة (Sandbox)</span>
         <div class="flex bg-slate-950 p-0.5 rounded border border-slate-800 text-[11px]">
           <button id="tab-preview" onclick="switchRightTab('preview')" class="px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium">المعاينة</button>
@@ -215,9 +217,10 @@
         codeEl.textContent = content;
         currentBlueprint = content;
 
+        // تفعيل زر الاعتماد العلوي مباشرة
         const btn = document.getElementById('btn-approve');
         btn.disabled = false;
-        btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1';
+        btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3 py-1 rounded text-xs font-bold transition flex items-center gap-1 shadow-lg shadow-emerald-900/30';
       } catch (e) {
         codeEl.textContent = '// خطأ في توليد المخطط: ' + e.message;
       }
