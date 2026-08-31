@@ -36,10 +36,14 @@
   <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.8 Resilient</span></h1>
+      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v3.0 Asset Pipeline</span></h1>
     </div>
     
     <div class="flex items-center gap-2">
+      <button onclick="toggleAssetModal()" class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 min-h-[36px]">
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <span>رفع وسائط السيرفر</span>
+      </button>
       <button id="btn-export" onclick="exportStandaloneHTML()" disabled class="hidden bg-slate-800 text-slate-500 cursor-not-allowed px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 min-h-[36px]">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
         <span>تصدير HTML</span>
@@ -74,7 +78,7 @@
       <div id="view-chat" class="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm">
           <div id="welcome-msg" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 leading-relaxed text-slate-300">
-            أهلاً بك. ناقش متطلبات أي مشروع تريده، ارفع صوراً للمحاكاة، ثم اضغط <strong>توليد المخطط</strong>.
+            أهلاً بك. ناقش متطلبات أي مشروع، ارفع صور المنتجات الحقيقية للسيرفر عبر زر <strong>[رفع وسائط السيرفر]</strong>، ثم اضغط <strong>توليد المخطط</strong>.
           </div>
         </div>
 
@@ -88,7 +92,7 @@
               <input type="file" id="image-input" accept="image/*" multiple class="hidden" onchange="handleFilesSelect(event)">
               <button onclick="document.getElementById('image-input').click()" class="h-10 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 flex items-center gap-1.5 text-xs transition font-medium">
                 <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                <span>إرفاق صور</span>
+                <span>صور مرجعية للتحليل</span>
                 <span id="img-count-badge" class="hidden bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
               </button>
             </div>
@@ -142,7 +146,6 @@
       <!-- حاوية المعاينة الداكنة -->
       <div id="view-preview" class="flex-1 bg-slate-950 flex flex-col min-h-0 overflow-hidden relative items-center justify-center">
         
-        <!-- شريط التنبيهات المباشرة -->
         <div id="notification-banner" class="hidden absolute top-2 inset-x-2 z-20 p-2.5 rounded-lg text-xs font-semibold shadow-lg text-center transition-all"></div>
 
         <div id="sandbox-status" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-xs text-slate-400 bg-slate-950 z-10">
@@ -157,7 +160,7 @@
         <!-- شريط التعديل التكراري المباشر -->
         <div id="refine-bar" class="w-full p-2 bg-slate-900 border-t border-slate-800 shrink-0">
           <div class="flex items-center gap-1.5">
-            <input type="text" id="refine-input" placeholder="اطلب تعديلاً مباشراً على هذا التصميم (مثال: أضف عداد تنازلي)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="refine-input" placeholder="اطلب تعديلاً مباشراً على هذا التصميم..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
             <button id="btn-apply-refine" onclick="applyRefinement()" class="h-9 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-1">
               <span>تطبيق التعديل</span>
             </button>
@@ -172,6 +175,41 @@
 
   </main>
 
+  <!-- نافذة إدارة ورفع وسائط السيرفر المركزية -->
+  <div id="asset-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[85dvh]">
+      <div class="p-3.5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+          <h3 class="text-sm font-bold text-white">مدير وسائط السيرفر المركزي (Origin Storage)</h3>
+        </div>
+        <button onclick="toggleAssetModal()" class="text-slate-400 hover:text-white text-base">✕</button>
+      </div>
+
+      <div class="p-3.5 space-y-3 overflow-y-auto flex-1 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">اسم المجلد / المشروع على السيرفر:</label>
+          <input type="text" id="asset-project-name" value="diuvan" placeholder="مثال: diuvan أو watches" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">اختر صور المنتجات الحقيقية من التابلت:</label>
+          <input type="file" id="server-file-input" accept="image/*" multiple class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-300 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
+        </div>
+
+        <button id="btn-do-upload" onclick="uploadFilesToServer()" class="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-900/30">
+          <span>رفع الصور إلى سيرفر Vultr وتوليد الروابط</span>
+        </button>
+
+        <!-- قائمة الروابط المرفوعة -->
+        <div id="uploaded-assets-list" class="space-y-2 pt-2 border-t border-slate-800 hidden">
+          <label class="block text-emerald-400 font-bold">الصور المرفوعة الجاهزة للاستخدام:</label>
+          <div id="uploaded-items-container" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentBlueprint = null;
     let currentGeneratedCode = null;
@@ -182,6 +220,81 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadCurrentSession();
     });
+
+    function toggleAssetModal() {
+      const modal = document.getElementById('asset-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    async function uploadFilesToServer() {
+      const fileInput = document.getElementById('server-file-input');
+      const projectInput = document.getElementById('asset-project-name');
+      const btn = document.getElementById('btn-do-upload');
+      
+      const files = fileInput.files;
+      const project = projectInput.value.trim() || 'general';
+
+      if (!files.length) {
+        alert('يرجى اختيار صورة واحدة على الأقل من جهازك.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> جاري الرفع للسيرفر...';
+
+      const formData = new FormData();
+      formData.append('project', project);
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+      }
+
+      try {
+        const res = await fetch('https://njagentic.online/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.success && data.urls) {
+          showNotice(`تم رفع ${data.urls.length} صورة بنجاح إلى السيرفر.`);
+          renderUploadedUrls(data.urls);
+        } else {
+          alert('فشل الرفع: ' + (data.error || 'خطأ غير معروف'));
+        }
+      } catch (e) {
+        alert('خطأ في الاتصال بسيرفر الرفع: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>رفع الصور إلى سيرفر Vultr وتوليد الروابط</span>';
+      }
+    }
+
+    function renderUploadedUrls(urls) {
+      const list = document.getElementById('uploaded-assets-list');
+      const container = document.getElementById('uploaded-items-container');
+      list.classList.remove('hidden');
+      
+      urls.forEach(url => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 p-1.5 bg-slate-950 border border-slate-800 rounded text-[11px]';
+        row.innerHTML = `
+          <div class="flex items-center gap-1.5 truncate">
+            <img src="${url}" class="w-6 h-6 object-cover rounded border border-slate-700">
+            <span class="truncate text-slate-300 select-all">${url}</span>
+          </div>
+          <button onclick="insertUrlToPrompt('${url}')" class="px-2 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 rounded text-[10px] whitespace-nowrap">إدراج بالنص</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function insertUrlToPrompt(url) {
+      const prompt = document.getElementById('prompt-input');
+      prompt.value += `\nاستخدم رابط الصورة الدائمة التالية لأحد المنتجات:\n${url}\n`;
+      saveDraftText();
+      toggleAssetModal();
+      showNotice('تم إدراج رابط الصورة في صندوق المتطلبات.');
+    }
 
     function showNotice(text, type = 'info') {
       const banner = document.getElementById('notification-banner');
