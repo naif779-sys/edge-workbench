@@ -60,7 +60,7 @@ ${currentCode}
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        max_tokens: 4000,
+        max_tokens: 3500,
         temperature: 0.2
       })
     });
@@ -68,17 +68,30 @@ ${currentCode}
     const data = await response.json();
 
     if (!response.ok || data.error) {
-      const errorMsg = data.error?.message || data.error || "فشل معالجة الكود.";
+      const errorMsg = data.error?.message || (typeof data.error === 'string' ? data.error : JSON.stringify(data.error)) || "فشل معالجة الطلب من المزود.";
       return new Response(JSON.stringify({ error: errorMsg }), {
+        status: response.status || 500,
+        headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" }
+      });
+    }
+
+    const choice = data.choices && data.choices[0];
+    let rawContent = choice?.message?.content;
+
+    if (!rawContent) {
+      const fallbackReason = choice?.finish_reason || "استجابة فارغة من النموذج";
+      return new Response(JSON.stringify({ error: `لم يُرجع النموذج أي كود صالح (السبب: ${fallbackReason}).` }), {
         status: 500,
         headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" }
       });
     }
 
-    let code = data.choices ? data.choices[0].message.content : "";
-
-    // تنظيف وسوم الماركداون
-    code = code.replace(/^```html\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+    // تنظيف وسوم الماركداون بأمان
+    let code = String(rawContent)
+      .replace(/^```html\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
 
     return new Response(JSON.stringify({ code: code }), {
       status: 200,
