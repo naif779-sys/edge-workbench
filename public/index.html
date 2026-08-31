@@ -36,7 +36,7 @@
   <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v3.0 Asset Pipeline</span></h1>
+      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v3.1 Asset Pipeline</span></h1>
     </div>
     
     <div class="flex items-center gap-2">
@@ -183,7 +183,7 @@
           <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
           <h3 class="text-sm font-bold text-white">مدير وسائط السيرفر المركزي (Origin Storage)</h3>
         </div>
-        <button onclick="toggleAssetModal()" class="text-slate-400 hover:text-white text-base">✕</button>
+        <button onclick="toggleAssetModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
       </div>
 
       <div class="p-3.5 space-y-3 overflow-y-auto flex-1 text-xs">
@@ -203,8 +203,13 @@
 
         <!-- قائمة الروابط المرفوعة -->
         <div id="uploaded-assets-list" class="space-y-2 pt-2 border-t border-slate-800 hidden">
-          <label class="block text-emerald-400 font-bold">الصور المرفوعة الجاهزة للاستخدام:</label>
-          <div id="uploaded-items-container" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
+          <div class="flex items-center justify-between">
+            <label class="block text-emerald-400 font-bold">الصور المرفوعة الجاهزة للاستخدام:</label>
+            <button onclick="insertAllUploadedUrls()" class="px-2.5 py-1 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white rounded text-[11px] font-semibold transition">
+              إدراج جميع الروابط
+            </button>
+          </div>
+          <div id="uploaded-items-container" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
         </div>
       </div>
     </div>
@@ -216,6 +221,7 @@
     let attachedImages = [];
     let conversationHistory = [];
     let isFullScreen = false;
+    let latestUploadedUrls = [];
 
     window.addEventListener('DOMContentLoaded', () => {
       loadCurrentSession();
@@ -235,7 +241,7 @@
       const project = projectInput.value.trim() || 'general';
 
       if (!files.length) {
-        alert('يرجى اختيار صورة واحدة على الأقل من جهازك.');
+        showNotice('يرجى اختيار صورة واحدة على الأقل من جهازك.', 'error');
         return;
       }
 
@@ -256,13 +262,14 @@
         const data = await res.json();
 
         if (data.success && data.urls) {
+          latestUploadedUrls = data.urls;
           showNotice(`تم رفع ${data.urls.length} صورة بنجاح إلى السيرفر.`);
           renderUploadedUrls(data.urls);
         } else {
-          alert('فشل الرفع: ' + (data.error || 'خطأ غير معروف'));
+          showNotice('فشل الرفع: ' + (data.error || 'خطأ غير معروف'), 'error');
         }
       } catch (e) {
-        alert('خطأ في الاتصال بسيرفر الرفع: ' + e.message);
+        showNotice('خطأ في الاتصال بسيرفر الرفع: ' + e.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>رفع الصور إلى سيرفر Vultr وتوليد الروابط</span>';
@@ -273,27 +280,59 @@
       const list = document.getElementById('uploaded-assets-list');
       const container = document.getElementById('uploaded-items-container');
       list.classList.remove('hidden');
+      container.innerHTML = '';
       
-      urls.forEach(url => {
+      urls.forEach((url, idx) => {
         const row = document.createElement('div');
         row.className = 'flex items-center justify-between gap-2 p-1.5 bg-slate-950 border border-slate-800 rounded text-[11px]';
         row.innerHTML = `
-          <div class="flex items-center gap-1.5 truncate">
-            <img src="${url}" class="w-6 h-6 object-cover rounded border border-slate-700">
-            <span class="truncate text-slate-300 select-all">${url}</span>
+          <div class="flex items-center gap-2 truncate">
+            <img src="${url}" class="w-7 h-7 object-cover rounded border border-slate-700 shrink-0">
+            <span class="truncate text-slate-300 font-mono text-[10px] select-all">${url}</span>
           </div>
-          <button onclick="insertUrlToPrompt('${url}')" class="px-2 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 rounded text-[10px] whitespace-nowrap">إدراج بالنص</button>
+          <div class="flex items-center gap-1 shrink-0">
+            <button id="btn-insert-${idx}" onclick="insertUrlToPrompt('${url}', this)" class="px-2 py-1 bg-indigo-600/40 hover:bg-indigo-600 text-indigo-200 hover:text-white rounded text-[10px] transition">إدراج</button>
+            <button onclick="copyToClipboard('${url}', this)" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] transition">نسخ</button>
+          </div>
         `;
         container.appendChild(row);
       });
     }
 
-    function insertUrlToPrompt(url) {
+    function insertUrlToPrompt(url, btn) {
       const prompt = document.getElementById('prompt-input');
-      prompt.value += `\nاستخدم رابط الصورة الدائمة التالية لأحد المنتجات:\n${url}\n`;
+      prompt.value += `\n- رابط صورة معتمدة: ${url}`;
       saveDraftText();
-      toggleAssetModal();
-      showNotice('تم إدراج رابط الصورة في صندوق المتطلبات.');
+      
+      if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = 'تم ✓';
+        btn.className = 'px-2 py-1 bg-emerald-600 text-white rounded text-[10px]';
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.className = 'px-2 py-1 bg-indigo-600/40 hover:bg-indigo-600 text-indigo-200 hover:text-white rounded text-[10px] transition';
+        }, 1500);
+      }
+      showNotice('تم إدراج رابط الصورة في صندوق المتطلبات بنجاح.');
+    }
+
+    function insertAllUploadedUrls() {
+      if (!latestUploadedUrls.length) return;
+      const prompt = document.getElementById('prompt-input');
+      prompt.value += '\n\nقائمة صور المنتجات المعتمدة من السيرفر:\n' + latestUploadedUrls.map(u => `- ${u}`).join('\n') + '\n';
+      saveDraftText();
+      showNotice(`تم إدراج جميع الروابط (${latestUploadedUrls.length}) في صندوق المتطلبات.`);
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = 'نُسخ ✓';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        }
+        showNotice('تم نسخ الرابط إلى الحافظة.');
+      });
     }
 
     function showNotice(text, type = 'info') {
