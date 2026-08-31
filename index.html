@@ -345,7 +345,7 @@
       setTimeout(() => { banner.classList.add('hidden'); }, 4000);
     }
 
-    function saveCurrentSession() {
+    function saveCurrentSession() { if (window.isResetting) return;
       const state = {
         history: conversationHistory,
         blueprint: currentBlueprint,
@@ -704,17 +704,21 @@
     }
 
     function startNewSession() {
-      if (confirm('هل تريد بدء جلسة جديدة وأرشفة الجلسة الحالية؟')) {
-        const raw = localStorage.getItem('workbench_active_session');
+    if (confirm("هل تريد بدء جلسة جديدة وأرشفة الجلسة الحالية؟")) {
+      window.isResetting = true;
+      try {
+        const raw = localStorage.getItem("workbench_active_session");
         if (raw) {
-          let sessions = JSON.parse(localStorage.getItem('workbench_saved_sessions') || '[]');
+          let sessions = JSON.parse(localStorage.getItem("workbench_saved_sessions") || "[]");
           sessions.unshift(JSON.parse(raw));
-          if (sessions.length > 3) sessions = sessions.slice(0, 3);
-          localStorage.setItem('workbench_saved_sessions', JSON.stringify(sessions));
+          if (sessions.length > 5) sessions = sessions.slice(0, 5);
+          localStorage.setItem("workbench_saved_sessions", JSON.stringify(sessions));
         }
-        localStorage.removeItem('workbench_active_session');
-        location.reload();
-      }
+      } catch(e) {}
+      localStorage.removeItem("workbench_active_session");
+      location.replace(location.pathname);
+    }
+  }
     }
   </script>
 </body>
