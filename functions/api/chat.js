@@ -12,26 +12,39 @@ export async function onRequestPost(context) {
 
     const payload = await request.json();
     const blueprint = payload.blueprint;
+    const currentCode = payload.current_code;
+    const refinementInstruction = payload.refinement_instruction;
 
-    if (!blueprint) {
+    if (!blueprint && !currentCode) {
       return new Response(
-        JSON.stringify({ error: "لم يتم تمرير المخطط الهيكلي (Blueprint) للتنفيذ." }),
+        JSON.stringify({ error: "لا توجد بيانات مخطط أو كود حالي للتنفيذ." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
 
     const systemPrompt = `أنت كبير مهندسي الواجهات الرقمية والنظم التفاعلية (Principal Frontend Systems Engineer).
-مهمتك: استلام المخطط المعماري (JSON Blueprint) وتشييد صفحة ويب كاملة، حية، خفيفة (Zero-bloat)، ومستقلة بالكامل (Single-File Standalone HTML5).
+مهمتك: إنتاج أو تعديل صفحات الويب المستقلة تماماً (Single-File Standalone HTML5) فائقة الخفة والسرعة (Zero-bloat).
 
 المعايير التقنية الصارمة:
-1. استقلالية تامة: ملف HTML5 متكامل يحتوي على <head> و <body> و <style> و <script> دون أي اعتماديات خارجية تتطلب بناء (No build tools).
-2. المكتبات المعتمدة:
-   - تضمين Tailwind CSS عبر CDN: <script src="https://cdn.tailwindcss.com"></script>
-   - تضمين الخطوط المحددة في المخطط عبر Google Fonts.
-3. التجاوب والعربية: دعم كامل لاتجاه الكتابة العربي (dir="rtl" lang="ar") وتجاوب مثالي مع كافة الشاشات واللمس.
-4. سياسة الوسائط والصور: يمنع منعاً باتاً وضع روابط خارجية عشوائية للصور. بدلاً من ذلك، قم بتصميم رسومات SVG دلالية مدمجة، أو عناصر نائبة أنيقة بألوان متناسقة مع الهوية البصرية.
-5. التفاعلية (Interactivity): كتابة كود Vanilla JavaScript تفاعلي لتشغيل القائمة المتنقلة، الأكورديون (FAQ)، النماذج، والتمرير السلس.
-6. صيغة المخرجات: أرجع حصراً كود الـ HTML الصافي دون أي نصوص تمهيدية أو علامات Markdown خارج الكود.`;
+1. ملف HTML5 متكامل يبدأ بـ <!DOCTYPE html> ويحتوي على Tailwind CDN وخطوط Google Fonts.
+2. دعم كامل للغة العربية (dir="rtl" lang="ar") والتجاوب مع مختلف الشاشات.
+3. استبدال الصور برسم SVG دلالي مدمج أو عناصر نائبة أنيقة بألوان متناسقة، دون أي روابط خارجية عشوائية.
+4. كود Vanilla JavaScript تفاعلي لتشغيل القوائم، الأكورديون، والنماذج.
+5. صيغة المخرجات: أرجع حصراً كود الـ HTML الصافي المعدل أو المُنشأ دون أي نصوص تمهيدية أو وسوم Markdown خارج الكود.`;
+
+    let userPrompt = "";
+
+    if (refinementInstruction && currentCode) {
+      userPrompt = `إليك الكود المصدري الحالي لصفحة الويب:
+\`\`\`html
+${currentCode}
+\`\`\`
+
+المطلوب: تطبيق التعديل التالي بدقة متناهية مع الحفاظ على استقلالية وكفاءة الكود بالكامل:
+"${refinementInstruction}"`;
+    } else {
+      userPrompt = `قم بتشييد صفحة الويب الكاملة بناءً على هذا المخطط المعماري المعتمد:\n\n${typeof blueprint === 'string' ? blueprint : JSON.stringify(blueprint)}`;
+    }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -39,26 +52,33 @@ export async function onRequestPost(context) {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://edge-workbench.pages.dev",
-        "X-Title": "Edge Workbench Universal Implementer"
+        "X-Title": "Edge Workbench Implementer & Refiner"
       },
       body: JSON.stringify({
         model: "anthropic/claude-sonnet-5",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `قم بتشييد صفحة الويب الكاملة بناءً على هذا المخطط المعماري المعتمد:\n\n${typeof blueprint === 'string' ? blueprint : JSON.stringify(blueprint, null, 2)}` }
-        ]
+          { role: "user", content: userPrompt }
+        ],
+        max_tokens: 4000,
+        temperature: 0.2
       })
     });
 
     const data = await response.json();
-    let code = data.choices ? data.choices[0].message.content : (data.error || "");
 
-    // تنظيف وسوم Markdown إن وُجدت لضمان عرض HTML نقي داخل الـ Iframe
-    if (code.startsWith("```html")) {
-      code = code.replace(/^```html\n/, "").replace(/\n```$/, "");
-    } else if (code.startsWith("```")) {
-      code = code.replace(/^```\n/, "").replace(/\n```$/, "");
+    if (!response.ok || data.error) {
+      const errorMsg = data.error?.message || data.error || "فشل معالجة الكود.";
+      return new Response(JSON.stringify({ error: errorMsg }), {
+        status: 500,
+        headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" }
+      });
     }
+
+    let code = data.choices ? data.choices[0].message.content : "";
+
+    // تنظيف وسوم الماركداون
+    code = code.replace(/^```html\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
 
     return new Response(JSON.stringify({ code: code }), {
       status: 200,
@@ -69,7 +89,7 @@ export async function onRequestPost(context) {
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: `خطأ في معالج التشييد البرمجي: ${err.message}` }),
+      JSON.stringify({ error: `خطأ في المعالج: ${err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   }
