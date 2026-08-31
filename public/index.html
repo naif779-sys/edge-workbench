@@ -6,117 +6,104 @@
   <title>Edge Workbench - Agentic UI Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Tajawal', sans-serif; }
     code, pre { font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden select-none">
+<body class="h-full flex flex-col overflow-hidden select-none bg-slate-950">
 
-  <!-- شريط العنوان العلوي -->
-  <header class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">منصة بناء الواجهات الذكية <span class="text-xs text-indigo-400 font-normal border border-indigo-500/30 px-2 py-0.5 rounded-full mr-2">Edge Agentic v2</span></h1>
+  <!-- الترويسة العلوية -->
+  <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
+    <div class="flex items-center gap-2">
+      <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
+      <h1 class="font-bold text-xs tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 rounded-full mr-1">Universal Engine</span></h1>
     </div>
-    <button onclick="resetSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
-      جلسة جديدة
-    </button>
+    
+    <div class="flex items-center gap-2">
+      <button id="btn-export" onclick="exportStandaloneHTML()" disabled class="hidden bg-slate-800 text-slate-500 cursor-not-allowed px-2.5 py-1 rounded text-xs font-bold transition flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <span>تصدير HTML</span>
+      </button>
+      <button onclick="resetSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+        جلسة جديدة
+      </button>
+    </div>
   </header>
 
-  <!-- مساحة العمل الرئيسية (Split Grid) -->
-  <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 p-3 overflow-hidden">
+  <!-- مساحة العمل الرئيسية -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 min-h-0 overflow-hidden">
 
-    <!-- العمود الأيمن: المخطط المعماري والاستشاري (Planner & Vision) -->
-    <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
-      <!-- ترويسة العمود والتبويبات -->
-      <div class="h-11 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span class="text-xs font-semibold text-slate-200">المستشار المعماري (Claude Sonnet 5)</span>
-        </div>
-        <div class="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
-          <button id="tab-chat" onclick="switchLeftTab('chat')" class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium">النقاش والمدخلات</button>
-          <button id="tab-blueprint" onclick="switchLeftTab('blueprint')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white">المخطط (Blueprint)</button>
+    <!-- العمود الأيمن: النقاش، التحليل، والمخطط -->
+    <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-lg overflow-hidden min-h-0">
+      <div class="h-10 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-2.5 shrink-0">
+        <span class="text-[11px] font-semibold text-slate-300">المستشار المعماري (Claude Sonnet)</span>
+        <div class="flex bg-slate-950 p-0.5 rounded border border-slate-800 text-[11px]">
+          <button id="tab-chat" onclick="switchLeftTab('chat')" class="px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium">النقاش والمدخلات</button>
+          <button id="tab-blueprint" onclick="switchLeftTab('blueprint')" class="px-2.5 py-0.5 rounded text-slate-400 hover:text-white">المخطط (Blueprint)</button>
         </div>
       </div>
 
-      <!-- محتوى النقاش والمدخلات -->
-      <div id="view-chat" class="flex-1 flex flex-col overflow-hidden">
-        <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs">
-          <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700/60 leading-relaxed">
-            مرحباً بك. أنا المستشار المعماري للنظام. يمكنك مناقشة متطلبات المشروع، الاستفسار عن الهيكل، أو <strong class="text-indigo-400">رفع تصاميم ولقطات شاشة</strong> لمحاكاتها قبل توليد المخطط النهائي.
+      <!-- واجهة النقاش -->
+      <div id="view-chat" class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div id="chat-messages" class="flex-1 p-2.5 overflow-y-auto space-y-2 text-xs">
+          <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700/60 leading-relaxed text-slate-300">
+            أهلاً بك. ناقش متطلبات أي مشروع تريده (متجر، عيادة، معرض، منصة)، ارفع صوراً للمحاكاة، ثم اضغط <strong>توليد المخطط</strong>.
           </div>
         </div>
 
-        <!-- معاينة الملف المرفوع -->
-        <div id="file-preview-bar" class="hidden px-3 py-1.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs">
-          <div class="flex items-center gap-2 truncate">
-            <span class="text-indigo-400 font-bold">ملف مرفق:</span>
-            <span id="file-name" class="text-slate-300 truncate max-w-[200px]"></span>
-          </div>
-          <button onclick="removeAttachedFile()" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5">إلغاء</button>
+        <div id="file-preview-bar" class="hidden px-2.5 py-1 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[11px]">
+          <span id="file-name" class="text-indigo-300 truncate max-w-[200px]"></span>
+          <button onclick="removeAttachedFile()" class="text-rose-400 text-[11px] font-bold">إلغاء المرفق</button>
         </div>
 
-        <!-- صندوق الإدخال التفاعلي -->
-        <div class="p-2.5 bg-slate-950 border-t border-slate-800 shrink-0">
-          <div class="relative flex items-center">
+        <div class="p-2 bg-slate-950 border-t border-slate-800 shrink-0">
+          <div class="flex items-center gap-1.5">
             <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
-            <button onclick="document.getElementById('image-input').click()" title="رفع تصميم أو صورة مرجعية" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-lg transition">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <button onclick="document.getElementById('image-input').click()" title="إرفاق صورة" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             </button>
-            <textarea id="prompt-input" rows="2" placeholder="اكتب متطلباتك أو استفسارك هنا..." class="flex-1 bg-transparent border-0 text-xs text-white placeholder-slate-500 focus:ring-0 resize-none px-2"></textarea>
-            <div class="flex items-center gap-1.5">
-              <button onclick="sendConsultationMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold transition">
-                إرسال
-              </button>
-              <button onclick="generateStructuredBlueprint()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap">
-                توليد المخطط
-              </button>
-            </div>
+            <textarea id="prompt-input" rows="1" placeholder="اكتب وصف المشروع أو المتطلبات..." class="flex-1 bg-transparent border-0 text-xs text-white placeholder-slate-500 focus:ring-0 resize-none px-1.5"></textarea>
+            <button onclick="sendConsultationMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded text-xs font-semibold transition">إرسال</button>
+            <button onclick="generateStructuredBlueprint()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold whitespace-nowrap transition">توليد المخطط</button>
           </div>
         </div>
       </div>
 
-      <!-- محتوى نافذة المخطط الهيكلي (JSON Blueprint) -->
-      <div id="view-blueprint" class="flex-1 hidden flex-col overflow-hidden bg-slate-950">
-        <pre id="blueprint-code" class="flex-1 p-3 overflow-auto text-xs text-emerald-400 selection:bg-emerald-900 leading-tight">// بانتظار توليد المخطط الهيكلي بعد انتهاء مرحلة النقاش...</pre>
+      <!-- واجهة المخطط المعماري الهيكلي -->
+      <div id="view-blueprint" class="flex-1 hidden flex-col min-h-0 overflow-hidden bg-slate-950">
+        <pre id="blueprint-code" class="flex-1 min-h-0 p-2.5 overflow-y-auto text-[11px] text-emerald-400 selection:bg-emerald-900 leading-tight">// سيظهر كائن الـ JSON المعماري هنا...</pre>
         <div class="p-2 bg-slate-900 border-t border-slate-800 flex justify-between items-center shrink-0">
-          <span class="text-[11px] text-slate-400">بوابة الاعتماد البشري (HITL)</span>
-          <button id="btn-approve" onclick="approveAndImplement()" disabled class="bg-slate-800 text-slate-500 cursor-not-allowed px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
-            <span>اعتماد المخطط ونقله للتنفيذ</span>
+          <span class="text-[10px] text-slate-400">بوابة الاعتماد البشري (HITL)</span>
+          <button id="btn-approve" onclick="approveAndImplement()" disabled class="bg-slate-800 text-slate-500 cursor-not-allowed px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1">
+            <span>اعتماد المخطط وتشييده</span>
             <span>←</span>
           </button>
         </div>
       </div>
     </section>
 
-    <!-- العمود الأيسر: المنفذ والمعاينة المعزولة (Implementer & Sandbox) -->
-    <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
-      <div class="h-11 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-          <span class="text-xs font-semibold text-slate-200">المنفذ والمعاينة (Sandbox)</span>
-        </div>
-        <div class="flex bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
-          <button id="tab-preview" onclick="switchRightTab('preview')" class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium">المعاينة الحية</button>
-          <button id="tab-code" onclick="switchRightTab('code')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white">الكود المصدري</button>
+    <!-- العمود الأيسر: المعاينة الحية والكود البرمجي -->
+    <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-lg overflow-hidden min-h-0">
+      <div class="h-10 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-2.5 shrink-0">
+        <span class="text-[11px] font-semibold text-slate-300">بيئة المعاينة (Sandbox)</span>
+        <div class="flex bg-slate-950 p-0.5 rounded border border-slate-800 text-[11px]">
+          <button id="tab-preview" onclick="switchRightTab('preview')" class="px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium">المعاينة</button>
+          <button id="tab-code" onclick="switchRightTab('code')" class="px-2.5 py-0.5 rounded text-slate-400 hover:text-white">الكود المصدري</button>
         </div>
       </div>
 
-      <!-- المعاينة داخل iframe معزول -->
-      <div id="view-preview" class="flex-1 bg-slate-950 flex flex-col overflow-hidden relative">
-        <div id="sandbox-status" class="absolute inset-0 flex items-center justify-center text-xs text-slate-500 bg-slate-950/90 z-10">
-          الحالة: بانتظار اعتماد المخطط المعماري
+      <div id="view-preview" class="flex-1 bg-slate-950 flex flex-col min-h-0 overflow-hidden relative">
+        <div id="sandbox-status" class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 bg-slate-950/90 z-10">
+          الحالة: بانتظار اعتماد وتشييد المخطط
         </div>
         <iframe id="sandbox-frame" class="w-full h-full border-0 bg-white" sandbox="allow-scripts allow-modals"></iframe>
       </div>
 
-      <!-- نافذة الكود المصدري المنفذ -->
-      <div id="view-source" class="flex-1 hidden bg-slate-950 p-3 overflow-auto">
-        <pre id="source-code" class="text-xs text-indigo-300 leading-relaxed">// الكود البرمجي الصافي سيظهر هنا فور اكتمال التشييد...</pre>
+      <div id="view-source" class="flex-1 hidden bg-slate-950 p-2.5 overflow-auto min-h-0">
+        <pre id="source-code" class="text-[11px] text-indigo-300 leading-relaxed">// الكود المصدري المستقل سيظهر هنا...</pre>
       </div>
     </section>
 
@@ -124,6 +111,7 @@
 
   <script>
     let currentBlueprint = null;
+    let currentGeneratedCode = null;
     let attachedImageBase64 = null;
     let conversationHistory = [];
 
@@ -131,16 +119,16 @@
       const isChat = tab === 'chat';
       document.getElementById('view-chat').classList.toggle('hidden', !isChat);
       document.getElementById('view-blueprint').classList.toggle('hidden', isChat);
-      document.getElementById('tab-chat').className = isChat ? 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white';
-      document.getElementById('tab-blueprint').className = !isChat ? 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white';
+      document.getElementById('tab-chat').className = isChat ? 'px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium' : 'px-2.5 py-0.5 rounded text-slate-400 hover:text-white';
+      document.getElementById('tab-blueprint').className = !isChat ? 'px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium' : 'px-2.5 py-0.5 rounded text-slate-400 hover:text-white';
     }
 
     function switchRightTab(tab) {
       const isPreview = tab === 'preview';
       document.getElementById('view-preview').classList.toggle('hidden', !isPreview);
       document.getElementById('view-source').classList.toggle('hidden', isPreview);
-      document.getElementById('tab-preview').className = isPreview ? 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white';
-      document.getElementById('tab-code').className = !isPreview ? 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium' : 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white';
+      document.getElementById('tab-preview').className = isPreview ? 'px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium' : 'px-2.5 py-0.5 rounded text-slate-400 hover:text-white';
+      document.getElementById('tab-code').className = !isPreview ? 'px-2.5 py-0.5 rounded bg-indigo-600 text-white font-medium' : 'px-2.5 py-0.5 rounded text-slate-400 hover:text-white';
     }
 
     function handleFileSelect(e) {
@@ -149,7 +137,7 @@
       const reader = new FileReader();
       reader.onload = function(evt) {
         attachedImageBase64 = evt.target.result;
-        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-name').textContent = 'مرفق: ' + file.name;
         document.getElementById('file-preview-bar').classList.remove('hidden');
       };
       reader.readAsDataURL(file);
@@ -164,11 +152,11 @@
     function appendMessage(role, text, image = null) {
       const chat = document.getElementById('chat-messages');
       const msgDiv = document.createElement('div');
-      msgDiv.className = role === 'user' ? 'bg-indigo-950/70 p-3 rounded-lg border border-indigo-800/50 leading-relaxed text-indigo-100' : 'bg-slate-800/80 p-3 rounded-lg border border-slate-700/60 leading-relaxed';
+      msgDiv.className = role === 'user' ? 'bg-indigo-950/70 p-2.5 rounded border border-indigo-800/50 leading-relaxed text-indigo-100' : 'bg-slate-800/80 p-2.5 rounded border border-slate-700/60 leading-relaxed';
       
       let html = `<p>${text}</p>`;
       if (image) {
-        html += `<img src="${image}" class="mt-2 max-h-36 rounded-md border border-slate-700">`;
+        html += `<img src="${image}" class="mt-2 max-h-32 rounded border border-slate-700">`;
       }
       msgDiv.innerHTML = html;
       chat.appendChild(msgDiv);
@@ -188,7 +176,7 @@
 
       const loadingMsg = document.createElement('div');
       loadingMsg.className = 'text-xs text-indigo-400 italic';
-      loadingMsg.textContent = 'جاري التحليل واستشارة المخطط...';
+      loadingMsg.textContent = 'جاري التحليل المعماري...';
       document.getElementById('chat-messages').appendChild(loadingMsg);
 
       try {
@@ -203,18 +191,18 @@
           appendMessage('assistant', data.reply);
           conversationHistory.push({ role: 'assistant', content: data.reply });
         } else {
-          appendMessage('assistant', data.error || 'حدث خطأ في الاتصال بالاستشاري.');
+          appendMessage('assistant', data.error || 'تعذر استلام الرد.');
         }
       } catch (e) {
         loadingMsg.remove();
-        appendMessage('assistant', 'تعذر الاتصال بالخادم.');
+        appendMessage('assistant', 'خطأ في الاتصال بالخدمة.');
       }
     }
 
     async function generateStructuredBlueprint() {
       switchLeftTab('blueprint');
       const codeEl = document.getElementById('blueprint-code');
-      codeEl.textContent = '// جاري صياغة المخطط المعماري النهائي (JSON)...';
+      codeEl.textContent = '// جاري صياغة المخطط المعماري...';
 
       try {
         const res = await fetch('/api/plan', {
@@ -229,7 +217,7 @@
 
         const btn = document.getElementById('btn-approve');
         btn.disabled = false;
-        btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5';
+        btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1';
       } catch (e) {
         codeEl.textContent = '// خطأ في توليد المخطط: ' + e.message;
       }
@@ -239,7 +227,7 @@
       if (!currentBlueprint) return;
       const status = document.getElementById('sandbox-status');
       status.classList.remove('hidden');
-      status.textContent = 'جاري التشييد البرمجي عبر Claude Sonnet...';
+      status.textContent = 'جاري تشييد الواجهة وبناء كود الويب المستقل...';
 
       try {
         const res = await fetch('/api/chat', {
@@ -250,17 +238,37 @@
         const data = await res.json();
         const code = data.choices ? data.choices[0].message.content : data.code;
         
+        currentGeneratedCode = code;
         document.getElementById('source-code').textContent = code;
         const frame = document.getElementById('sandbox-frame');
         frame.srcdoc = code;
         status.classList.add('hidden');
+
+        // تفعيل زر التصدير
+        const exportBtn = document.getElementById('btn-export');
+        exportBtn.classList.remove('hidden');
+        exportBtn.disabled = false;
+        exportBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer px-2.5 py-1 rounded text-xs font-bold transition flex items-center gap-1';
       } catch (e) {
         status.textContent = 'خطأ أثناء تنفيذ الكود: ' + e.message;
       }
     }
 
+    function exportStandaloneHTML() {
+      if (!currentGeneratedCode) return;
+      const blob = new Blob([currentGeneratedCode], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     function resetSession() {
-      if(confirm('هل تريد بدء جلسة جديدة ومسح المحادثة الحالية؟')) {
+      if (confirm('هل تريد بدء جلسة عمل جديدة؟')) {
         location.reload();
       }
     }
