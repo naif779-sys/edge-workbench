@@ -36,7 +36,7 @@
   <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.4 Universal</span></h1>
+      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.5 Universal</span></h1>
     </div>
     
     <div class="flex items-center gap-2">
@@ -114,7 +114,6 @@
     <!-- العمود الأيسر: المعاينة الحية والكود البرمجي -->
     <section id="preview-section" class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0 relative transition-all">
       
-      <!-- ترويسة أدوات المعاينة والمقاسات -->
       <div class="h-12 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-3 shrink-0 gap-2">
         <div class="flex items-center gap-1.5">
           <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
@@ -122,7 +121,6 @@
             <button id="tab-code" onclick="switchRightTab('code')" class="px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]">الكود</button>
           </div>
 
-          <!-- محدد مقاسات الشاشات -->
           <div id="viewport-controls" class="hidden sm:flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
             <button onclick="setViewport('100%')" title="كامل الشاشة" class="px-2 py-1 rounded text-slate-300 hover:text-white hover:bg-slate-800">100%</button>
             <button onclick="setViewport('768px')" title="تابلت" class="px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-slate-800">تابلت</button>
@@ -130,7 +128,6 @@
           </div>
         </div>
 
-        <!-- أزرار التكبير والفتح في تبويب جديد -->
         <div class="flex items-center gap-1.5">
           <button onclick="openInNewTab()" title="فتح الموقع في تبويب مستقل" class="h-8 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md border border-slate-700 text-xs flex items-center gap-1 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -142,19 +139,21 @@
         </div>
       </div>
 
-      <!-- حاوية المعاينة التفاعلية -->
+      <!-- حاوية المعاينة الداكنة -->
       <div id="view-preview" class="flex-1 bg-slate-950 flex flex-col min-h-0 overflow-hidden relative items-center justify-center">
-        <div id="sandbox-status" class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 bg-slate-950/90 z-10">
-          الحالة: بانتظار اعتماد وتشييد المخطط
+        <div id="sandbox-status" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-xs text-slate-400 bg-slate-950 z-10">
+          <div id="status-spinner" class="hidden w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+          <p id="status-text">الحالة: بانتظار اعتماد وتشييد المخطط</p>
         </div>
-        <div id="frame-wrapper" class="w-full h-full transition-all duration-200 flex justify-center">
-          <iframe id="sandbox-frame" class="w-full h-full border-0 bg-white transition-all duration-200" sandbox="allow-scripts allow-modals"></iframe>
+        
+        <div id="frame-wrapper" class="w-full h-full transition-all duration-200 flex justify-center bg-slate-950">
+          <iframe id="sandbox-frame" class="w-full h-full border-0 bg-slate-950 transition-all duration-200" sandbox="allow-scripts allow-modals"></iframe>
         </div>
 
-        <!-- شريط التعديل التكراري المباشر أسفل المعاينة -->
+        <!-- شريط التعديل التكراري المباشر -->
         <div id="refine-bar" class="hidden w-full p-2 bg-slate-900 border-t border-slate-800 shrink-0">
           <div class="flex items-center gap-1.5">
-            <input type="text" id="refine-input" placeholder="اطلب تعديلاً مباشراً على هذا التصميم (مثال: اجعل الألوان خضراء، أضف زر اتصال)..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="refine-input" placeholder="اطلب تعديلاً مباشراً على هذا التصميم..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
             <button onclick="applyRefinement()" class="h-9 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold whitespace-nowrap transition">تطبيق التعديل</button>
           </div>
         </div>
@@ -203,21 +202,17 @@
     function setViewport(width) {
       const wrapper = document.getElementById('frame-wrapper');
       wrapper.style.maxWidth = width;
-      if (width !== '100%') {
-        wrapper.className = 'w-full h-full transition-all duration-200 flex justify-center border-x border-slate-800 shadow-2xl';
-      } else {
-        wrapper.className = 'w-full h-full transition-all duration-200 flex justify-center';
-      }
+      wrapper.className = width !== '100%' 
+        ? 'w-full h-full transition-all duration-200 flex justify-center border-x border-slate-800 shadow-2xl bg-slate-950' 
+        : 'w-full h-full transition-all duration-200 flex justify-center bg-slate-950';
     }
 
     function toggleFullScreenPreview() {
       const sec = document.getElementById('preview-section');
       isFullScreen = !isFullScreen;
-      if (isFullScreen) {
-        sec.className = 'fixed inset-0 z-50 flex flex-col bg-slate-900 overflow-hidden';
-      } else {
-        sec.className = 'flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0 relative transition-all';
-      }
+      sec.className = isFullScreen 
+        ? 'fixed inset-0 z-50 flex flex-col bg-slate-900 overflow-hidden' 
+        : 'flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0 relative transition-all';
     }
 
     function openInNewTab() {
@@ -336,7 +331,7 @@
         }
       } catch (e) {
         loadingMsg.remove();
-        appendMessage('assistant', 'خطأ في الاتصال بالخدمة.');
+        appendMessage('assistant', 'خطأ في الاتصال بالخدمة: ' + e.message);
       }
     }
 
@@ -379,8 +374,12 @@
     async function approveAndImplement() {
       if (!currentBlueprint) return;
       const status = document.getElementById('sandbox-status');
+      const spinner = document.getElementById('status-spinner');
+      const statusText = document.getElementById('status-text');
+
       status.classList.remove('hidden');
-      status.textContent = 'جاري تشييد الواجهة وبناء كود الويب المستقل...';
+      spinner.classList.remove('hidden');
+      statusText.textContent = 'جاري تشييد الواجهة وبناء كود الويب المستقل...';
 
       try {
         const res = await fetch('/api/chat', {
@@ -388,15 +387,22 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ blueprint: currentBlueprint })
         });
-        const data = await res.json();
-        const code = data.choices ? data.choices[0].message.content : data.code;
         
+        const data = await res.json();
+
+        if (!res.ok || data.error || !data.code) {
+          throw new Error(data.error || 'لم يتم استلام كود صالح من الخادم.');
+        }
+
+        const code = data.code;
         currentGeneratedCode = code;
         document.getElementById('source-code').textContent = code;
+        
         const frame = document.getElementById('sandbox-frame');
         frame.srcdoc = code;
+        
         status.classList.add('hidden');
-
+        spinner.classList.add('hidden');
         document.getElementById('refine-bar').classList.remove('hidden');
 
         const exportBtn = document.getElementById('btn-export');
@@ -404,7 +410,8 @@
         exportBtn.disabled = false;
         exportBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-900/30 min-h-[36px]';
       } catch (e) {
-        status.textContent = 'خطأ أثناء تنفيذ الكود: ' + e.message;
+        spinner.classList.add('hidden');
+        statusText.innerHTML = `<span class="text-rose-400 font-bold">خطأ في التشييد:</span><br>${e.message}`;
       }
     }
 
@@ -414,8 +421,12 @@
       if (!instruction || !currentGeneratedCode) return;
 
       const status = document.getElementById('sandbox-status');
+      const spinner = document.getElementById('status-spinner');
+      const statusText = document.getElementById('status-text');
+
       status.classList.remove('hidden');
-      status.textContent = 'جاري تطبيق التعديلات المباشرة على الكود...';
+      spinner.classList.remove('hidden');
+      statusText.textContent = 'جاري تطبيق التعديلات المباشرة...';
 
       try {
         const res = await fetch('/api/chat', {
@@ -427,16 +438,24 @@
             refinement_instruction: instruction
           })
         });
-        const data = await res.json();
-        const code = data.choices ? data.choices[0].message.content : data.code;
         
+        const data = await res.json();
+
+        if (!res.ok || data.error || !data.code) {
+          throw new Error(data.error || 'فشل تطبيق التعديل.');
+        }
+
+        const code = data.code;
         currentGeneratedCode = code;
         document.getElementById('source-code').textContent = code;
         document.getElementById('sandbox-frame').srcdoc = code;
         input.value = '';
+        
         status.classList.add('hidden');
+        spinner.classList.add('hidden');
       } catch (e) {
-        status.textContent = 'خطأ أثناء تطبيق التعديل: ' + e.message;
+        spinner.classList.add('hidden');
+        statusText.innerHTML = `<span class="text-rose-400 font-bold">خطأ أثناء التعديل:</span><br>${e.message}`;
       }
     }
 
