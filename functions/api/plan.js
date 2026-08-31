@@ -1,7 +1,7 @@
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
-    const apiKey = env.PLANNER_API_KEY || env.OPENROUTER_API_KEY;
+    const apiKey = env.OPENROUTER_API_KEY || env.PLANNER_API_KEY;
 
     if (!apiKey) {
       return new Response(
@@ -12,128 +12,34 @@ export async function onRequestPost(context) {
 
     const payload = await request.json();
     const history = payload.history || [];
-    const images = payload.images || [];
-    const singleImage = payload.image || null;
-    const directPrompt = payload.prompt || "";
 
-    if (history.length === 0 && !directPrompt && images.length === 0 && !singleImage) {
-      return new Response(
-        JSON.stringify({ error: "لا توجد مدخلات لتوليد المخطط. يرجى توضيح متطلبات المشروع أولاً." }),
-        { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
-      );
-    }
+    const systemPrompt = `أنت كبير مهندسي الحلول المعمارية (Lead Enterprise Software Architect).
+مهمتك: تحويل كافة متطلبات الحوار والصور إلى كائن JSON تخطيطي مجرد (Architectural Blueprint) لبناء صفحة ويب مستقلة متكاملة.
 
-    const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمعمارية الرقمية (Principal Universal UI/UX Systems Architect).
-مهمتك: تحليل متطلبات أي مشروع رقمي وسجل النقاش والصور المرفقة، ثم توليد مخطط معماري مجرد فائق الدقة (Domain-Agnostic JSON Blueprint).
-
-القواعد المعمارية الصارمة:
-1. التجريد والشمولية: صياغة هيكل ملائم لنوع النشاط المحدد (متجر، عيادة، سوبرماركت، معرض أثاث، SaaS، portfolio).
-2. سياسة الصور: يمنع منعاً باتاً اختراع أو كتابة روابط صور خارجية عشوائية. استخدم فقط كائنات حجز المساحات الدلالية (asset_slots) مع تحديد النسبة (aspect_ratio) والوصف.
-3. دعم كامل للغة العربية (RTL) ومعايير التصميم الحديثة الخفيفة (Zero-bloat).
-4. المخرجات يجب أن تكون حصراً كائن JSON صالح وخالٍ من أي نصوص أو شروحات إضافية.
-
-الهيكل المعياري المطلوب:
-{
-  "project_metadata": {
-    "name": "اسم المشروع",
-    "domain_type": "نوع النشاط",
-    "direction": "rtl",
-    "language": "ar"
-  },
-  "design_tokens": {
-    "palette": {
-      "background": "slate-950",
-      "surface": "slate-900",
-      "primary": "indigo-600",
-      "accent": "amber-500",
-      "text_main": "slate-100",
-      "text_muted": "slate-400",
-      "border": "slate-800"
-    },
-    "typography": {
-      "font_family": "Tajawal, sans-serif",
-      "headings_weight": "font-bold"
-    },
-    "layout_density": "spacious"
-  },
-  "layout_tree": {
-    "header": {
-      "brand_title": "العنوان",
-      "navigation_links": [{"label": "الرئيسية", "target": "#hero"}],
-      "actions": [{"label": "تواصل معنا", "target": "#contact", "variant": "primary"}]
-    },
-    "sections": [
-      {
-        "id": "hero",
-        "primitive_type": "split_hero",
-        "title": "عنوان بارز",
-        "subtitle": "وصف تسويقي وهندسي محكم",
-        "cta_group": [{"label": "ابدأ الآن", "target": "#action", "variant": "primary"}],
-        "media_slot": {"type": "abstract_svg_illustration", "aspect_ratio": "16/9", "description": "وصف المشهد"}
-      }
-    ],
-    "footer": {
-      "summary": "ملخص المشروع",
-      "copyright": "جميع الحقوق محفوظة",
-      "links": [{"label": "الشروط", "target": "#"}]
-    }
-  },
-  "interactive_capabilities": [
-    "mobile_drawer",
-    "smooth_navigation",
-    "lead_capture_modal"
-  ]
-}`;
+المعايير الهندسية للمخطط:
+1. يجب أن يكون الناتج كائن JSON صالحاً بنسبة 100% دون أي نصوص تمهيدية أو وسوم ماركداون خارج الكائن.
+2. دعم كامل للهوية العربية (RTL، خطوط Google Fonts مثل Tajawal/Cairo).
+3. تفكيك الصفحة إلى:
+   - meta: (العنوان، الوصف، نظام الألوان، الخطوط).
+   - header: (الشعار، روابط التنقل، أزرار الدعوة للإجراء CTA).
+   - sections: مصفوفة تشمل كل قسم بمكوناته الفرعية وتفاصيله الدقيقة (Hero, Features, Catalog/Grid, Specs, Reviews, FAQ, CTA).
+   - interactivity: مصفوفة توضح الوظائف التفاعلية المطلوبة (سلة، أكورديون، عداد تنازلي، فلترة، نوافذ منبثقة).
+   - footer: (روابط الوصول، حقوق الملكية، قنوات التواصل).`;
 
     const messages = [{ role: "system", content: systemPrompt }];
 
-    // إضافة كامل سياق الحوار والصور السابقة
-    if (history.length > 0) {
-      for (const item of history) {
-        if (item.images && item.images.length > 0) {
-          const content = [{ type: "text", text: item.content || "مرفقات مرجعية" }];
-          item.images.forEach(img => {
-            content.push({
-              type: "image_url",
-              image_url: { url: img.base64 || img }
-            });
-          });
-          messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: content });
-        } else if (item.image) {
-          messages.push({
-            role: item.role === "assistant" ? "assistant" : "user",
-            content: [
-              { type: "text", text: item.content || "تصميم مرجعي" },
-              { type: "image_url", image_url: { url: item.image } }
-            ]
-          });
-        } else {
-          messages.push({
-            role: item.role === "assistant" ? "assistant" : "user",
-            content: item.content || ""
-          });
-        }
+    // إضافة سياق المحادثة المكتمل
+    for (const msg of history) {
+      if (msg.role === "user") {
+        messages.push({ role: "user", content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content) });
+      } else if (msg.role === "assistant") {
+        messages.push({ role: "assistant", content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content) });
       }
-    } else if (directPrompt) {
-      messages.push({ role: "user", content: directPrompt });
-    }
-
-    // إضافة الصور في حال تم تمريرها في الطلب الحالي مباشرة دون سجل
-    const currentImages = images.length > 0 ? images : (singleImage ? [{ base64: singleImage }] : []);
-    if (currentImages.length > 0 && history.length === 0) {
-      const userContent = [{ type: "text", text: directPrompt || "صياغة المخطط بناءً على هذه الصور المرجعية." }];
-      currentImages.forEach(img => {
-        userContent.push({
-          type: "image_url",
-          image_url: { url: img.base64 || img }
-        });
-      });
-      messages.push({ role: "user", content: userContent });
     }
 
     messages.push({
       role: "user",
-      content: "صِغ الآن كائن الـ JSON Blueprint المعماري المكتمل بناءً على كافة المدخلات والمعايير التجريدية الصارمة."
+      content: "قم بصياغة كائن الـ JSON Blueprint المعماري الكامل والنهائي الآن بناءً على كامل متطلبات المشروع المذكورة أعلاه."
     });
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -145,24 +51,35 @@ export async function onRequestPost(context) {
         "X-Title": "Edge Workbench Architecture Planner"
       },
       body: JSON.stringify({
-        model: "anthropic/claude-sonnet-5",
+        model: "deepseek/deepseek-chat",
         messages: messages,
+        temperature: 0.1,
+        max_tokens: 2500,
         response_format: { type: "json_object" }
       })
     });
 
-    const responseData = await response.text();
+    const data = await response.json();
 
-    return new Response(responseData, {
-      status: response.status,
+    if (!response.ok || data.error) {
+      const errorMsg = data.error?.message || (typeof data.error === 'string' ? data.error : JSON.stringify(data.error)) || "فشل توليد المخطط المعماري.";
+      return new Response(JSON.stringify({ error: errorMsg }), {
+        status: response.status || 500,
+        headers: { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" }
+      });
+    }
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
         "Access-Control-Allow-Origin": "*"
       }
     });
+
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: `خطأ في معالج التخطيط: ${err.message}` }),
+      JSON.stringify({ error: `خطأ أثناء تخطيط الهيكل: ${err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   }
