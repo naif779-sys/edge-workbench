@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
 
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "مفتاح PLANNER_API_KEY غير معرّف في بيئة Cloudflare." }),
+        JSON.stringify({ error: "مفتاح API غير معرّف في بيئة Cloudflare." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
@@ -17,53 +17,70 @@ export async function onRequestPost(context) {
 
     if (history.length === 0 && !directPrompt && !image) {
       return new Response(
-        JSON.stringify({ error: "لا توجد متطلبات أو سجل محادثة لتوليد المخطط. يرجى كتابة متطلبات المشروع أولاً." }),
+        JSON.stringify({ error: "لا توجد مدخلات لتوليد المخطط. يرجى توضيح متطلبات المشروع أولاً." }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
 
-    const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمخطط المعماري للواجهات الرقمية (Principal UI/UX Systems Architect).
-مهمتك: مراجعة كامل الحوار والمتطلبات السابقة وتحليل أي صور مرفقة، ثم صياغة مخطط معماري متكامل (JSON Blueprint) فائق الجودة، حديث، خفيف (Zero-bloat)، ويدعم اللغة العربية (RTL).
+    const systemPrompt = `أنت كبير مهندسي تجربة المستخدم والمعمارية الرقمية (Principal Universal UI/UX Systems Architect).
+مهمتك: تحليل متطلبات أي مشروع رقمي وسجل النقاش والصور المرفقة، ثم توليد مخطط معماري مجرد فائق الدقة (Domain-Agnostic JSON Blueprint).
 
-يجب أن تكون مخرجاتك حصراً كائن JSON صافٍ مطابق للهيكل التالي دون أي مقدمات أو علامات Markdown:
+القواعد المعمارية الصارمة:
+1. التجريد والشمولية: صياغة هيكل ملائم لنوع النشاط المحدد (متجر، عيادة، سوبرماركت، معرض أثاث، SaaS، portfolio).
+2. سياسة الصور: يمنع منعاً باتاً اختراع أو كتابة روابط صور خارجية عشوائية (مثل unsplash). استخدم فقط كائنات حجز المساحات الدلالية (asset_slots) مع تحديد النسبة (aspect_ratio) والوصف.
+3. دعم كامل للغة العربية (RTL) ومعايير التصميم الحديثة الخفيفة (Zero-bloat).
+4. المخرجات يجب أن تكون حصراً كائن JSON صالح وخالٍ من أي نصوص أو شروحات إضافية.
 
+الهيكل المعياري المطلوب:
 {
-  "project_name": "اسم المشروع",
-  "direction": "rtl",
-  "theme": {
-    "background": "slate-950",
-    "surface": "slate-900",
-    "primary": "indigo-600",
-    "accent": "amber-500",
-    "text_primary": "slate-100",
-    "text_secondary": "slate-400",
-    "font_family": "Tajawal, sans-serif"
+  "project_metadata": {
+    "name": "اسم المشروع",
+    "domain_type": "نوع النشاط",
+    "direction": "rtl",
+    "language": "ar"
   },
-  "layout": {
+  "design_tokens": {
+    "palette": {
+      "background": "slate-950",
+      "surface": "slate-900",
+      "primary": "indigo-600",
+      "accent": "amber-500",
+      "text_main": "slate-100",
+      "text_muted": "slate-400",
+      "border": "slate-800"
+    },
+    "typography": {
+      "font_family": "Tajawal, sans-serif",
+      "headings_weight": "font-bold"
+    },
+    "layout_density": "spacious"
+  },
+  "layout_tree": {
     "header": {
-      "brand_name": "اسم العلامة",
-      "navigation": [{"label": "الرئيسية", "href": "#hero"}]
+      "brand_title": "العنوان",
+      "navigation_links": [{"label": "الرئيسية", "target": "#hero"}],
+      "actions": [{"label": "تواصل معنا", "target": "#contact", "variant": "primary"}]
     },
     "sections": [
       {
         "id": "hero",
-        "type": "hero_section",
-        "title": "عنوان رئيسي جذاب وواضح",
-        "subtitle": "نص تسويقي ومعماري مركز",
-        "cta": [
-          {"text": "ابدأ الآن", "action": "#cta", "style": "primary"}
-        ]
+        "primitive_type": "split_hero",
+        "title": "عنوان بارز",
+        "subtitle": "وصف تسويقي وهندسي محكم",
+        "cta_group": [{"label": "ابدأ الآن", "target": "#action", "variant": "primary"}],
+        "media_slot": {"type": "abstract_svg_illustration", "aspect_ratio": "16/9", "description": "وصف المشهد"}
       }
     ],
     "footer": {
+      "summary": "ملخص المشروع",
       "copyright": "جميع الحقوق محفوظة",
-      "links": [{"label": "سياسة الخصوصية", "href": "#"}]
+      "links": [{"label": "الشروط", "target": "#"}]
     }
   },
-  "interactive_specs": [
-    "mobile_drawer_toggle",
-    "smooth_scroll",
-    "modal_form_submission"
+  "interactive_capabilities": [
+    "mobile_drawer",
+    "smooth_navigation",
+    "lead_capture_modal"
   ]
 }`;
 
@@ -92,7 +109,7 @@ export async function onRequestPost(context) {
 
     messages.push({
       role: "user",
-      content: "بناءً على كامل الحوار والتفاصيل السابقة، قم الآن بتوليد كائن الـ JSON المعماري النهائي للواجهة."
+      content: "صِغ الآن كائن الـ JSON Blueprint المعماري المكتمل بناءً على المعايير التجريدية الصارمة."
     });
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -121,7 +138,7 @@ export async function onRequestPost(context) {
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: `خطأ في معالج التخطيط المعماري: ${err.message}` }),
+      JSON.stringify({ error: `خطأ في معالج التخطيط: ${err.message}` }),
       { status: 500, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   }
