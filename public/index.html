@@ -36,7 +36,7 @@
   <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
     <div class="flex items-center gap-2">
       <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.7 Multi-Model</span></h1>
+      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v2.8 Resilient</span></h1>
     </div>
     
     <div class="flex items-center gap-2">
@@ -141,6 +141,10 @@
 
       <!-- حاوية المعاينة الداكنة -->
       <div id="view-preview" class="flex-1 bg-slate-950 flex flex-col min-h-0 overflow-hidden relative items-center justify-center">
+        
+        <!-- شريط التنبيهات المباشرة -->
+        <div id="notification-banner" class="hidden absolute top-2 inset-x-2 z-20 p-2.5 rounded-lg text-xs font-semibold shadow-lg text-center transition-all"></div>
+
         <div id="sandbox-status" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-xs text-slate-400 bg-slate-950 z-10">
           <div id="status-spinner" class="hidden w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
           <p id="status-text">الحالة: بانتظار اعتماد وتشييد المخطط</p>
@@ -178,6 +182,16 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadCurrentSession();
     });
+
+    function showNotice(text, type = 'info') {
+      const banner = document.getElementById('notification-banner');
+      banner.className = `absolute top-2 inset-x-2 z-20 p-2.5 rounded-lg text-xs font-semibold shadow-lg text-center transition-all ${
+        type === 'error' ? 'bg-rose-900/90 text-rose-200 border border-rose-700' : 'bg-indigo-900/90 text-indigo-200 border border-indigo-700'
+      }`;
+      banner.textContent = text;
+      banner.classList.remove('hidden');
+      setTimeout(() => { banner.classList.add('hidden'); }, 4000);
+    }
 
     function saveCurrentSession() {
       const state = {
@@ -269,7 +283,7 @@
 
     function openInNewTab() {
       if (!currentGeneratedCode) {
-        alert('يرجى تشييد الواجهة أولاً لفتحها في تبويب مستقل.');
+        showNotice('يرجى تشييد الواجهة أولاً لفتحها في تبويب مستقل.', 'error');
         return;
       }
       const blob = new Blob([currentGeneratedCode], { type: 'text/html;charset=utf-8' });
@@ -365,7 +379,7 @@
 
       const loadingMsg = document.createElement('div');
       loadingMsg.className = 'text-xs text-indigo-400 italic p-2';
-      loadingMsg.textContent = 'جاري التحليل المعماري وصياغة الرأي...';
+      loadingMsg.textContent = 'جاري التحليل المعماري وصياغة الرأي عبر Gemini Flash...';
       document.getElementById('chat-messages').appendChild(loadingMsg);
       document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 
@@ -475,12 +489,12 @@
       const instruction = input.value.trim();
 
       if (!instruction) {
-        alert('يرجى كتابة التعديل المطلوب أولاً.');
+        showNotice('يرجى كتابة التعديل المطلوب أولاً.', 'error');
         return;
       }
 
       if (!currentGeneratedCode) {
-        alert('يجب اعتماد وتشييد المخطط أولاً لتظهر الواجهة قبل طلب التعديل.');
+        showNotice('يجب الضغط على [اعتماد المخطط وتشييده] أولاً لتوليد الصفحة الأساسية قبل التعديل.', 'error');
         return;
       }
 
@@ -516,6 +530,7 @@
         
         status.classList.add('hidden');
         spinner.classList.add('hidden');
+        showNotice('تم تطبيق التعديل بنجاح.');
         saveCurrentSession();
       } catch (e) {
         spinner.classList.add('hidden');
