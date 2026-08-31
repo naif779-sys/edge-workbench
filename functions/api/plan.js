@@ -41,14 +41,28 @@ Return ONLY pure valid JSON within a \`\`\`json \`\`\` block.`;
       })
     });
 
+    if (!response.ok) {
+      const errText = await response.text();
+      return new Response(JSON.stringify({ error: `خطأ من مزود التخطيط (${response.status}): ${errText}` }), {
+        status: response.status,
+        headers: { "Content-Type": "application/json; charset=utf-8" }
+      });
+    }
+
     const data = await response.json();
-    return new Response(JSON.stringify(data), {
-      status: response.status,
+    const rawContent = data.choices?.[0]?.message?.content || "";
+    const match = rawContent.match(/```json\s*([\s\S]*?)\s*```/) || rawContent.match(/```\s*([\s\S]*?)\s*```/);
+    const cleanedBlueprint = match ? match[1].trim() : rawContent.trim();
+
+    return new Response(JSON.stringify({
+      blueprint: cleanedBlueprint,
+      choices: [{ message: { content: cleanedBlueprint } }]
+    }), {
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: `خطأ في محرك التخطيط: ${err.message}` }), {
+    return new Response(JSON.stringify({ error: `خطأ داخلي في محرك التخطيط: ${err.message}` }), {
       status: 500,
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });

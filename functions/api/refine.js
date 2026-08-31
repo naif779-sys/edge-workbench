@@ -52,7 +52,10 @@ Rules:
     const match = rawContent.match(/```html\s*([\s\S]*?)\s*```/) || rawContent.match(/```\s*([\s\S]*?)\s*```/);
     const cleanedCode = match ? match[1].trim() : rawContent.trim();
 
-    return new Response(JSON.stringify({ code: cleanedCode }), {
+    return new Response(JSON.stringify({
+      code: cleanedCode,
+      choices: [{ message: { content: cleanedCode } }]
+    }), {
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });
 
