@@ -3,7 +3,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { prompt, blueprint } = body;
+    const { prompt, blueprint, embeddedAssets = [] } = body;
     const headerKey = request.headers.get("X-Custom-API-Key");
     const apiKey = headerKey || env.OPENROUTER_API_KEY || env.BUILDER_API_KEY || env.PLANNER_API_KEY;
 
@@ -19,10 +19,13 @@ export async function onRequestPost(context) {
 المتطلبات الإلزامية:
 1. دعم RTL واللغة العربية الكاملة واستخدام خط Tajawal وتنسيقات Tailwind CSS.
 2. استخدام JavaScript تفاعلي خالص (Pure JS) لإدارة سلة التسوق (إضافة، حذف، عداد السلة، زر الطلب الفوري).
-3. بناء مكونات داكنة وتفاصيل ذهبية أنيقة، مع صور ساعات فاخرة واقعية من Unsplash.
+3. إذا تم تزويدك بمصفوفة صور أصول مرفوعة (embeddedAssets)، استخدم بياناتها الممررة مباشرة داخل وسوم <img> للمنتجات أو الأقسام المناسبة، وإلا فاستخدم صور ساعات فاخرة واقعية ومباشرة من Unsplash.
 4. إرجاع كود HTML الكامل فقط (يبدأ بـ <!DOCTYPE html> وينتهي بـ </html>) دون أي نصوص أو شروحات جانبية.`;
 
-    const userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم:\n${prompt}`;
+    let userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم:\n${prompt}`;
+    if (embeddedAssets.length > 0) {
+      userMessage += `\n\nالصور المرفوعة المتاحة للتضمين المباشر في المتجر (عدد ${embeddedAssets.length}):\n` + JSON.stringify(embeddedAssets);
+    }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
