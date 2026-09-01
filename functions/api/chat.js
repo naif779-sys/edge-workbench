@@ -14,17 +14,25 @@ export async function onRequestPost(context) {
       });
     }
 
-    const systemPrompt = `أنت مبرمج واجهات ويب أول (Senior Full-Stack UI/UX Engineer).
-مهمتك بناء صفحة متجر إلكتروني متكاملة، نظيفة، فائقة الفخامة وجاهزة للعمل الفوري ضمن ملف HTML واحد مستقل (Single-File).
-المتطلبات الإلزامية:
-1. دعم RTL واللغة العربية الكاملة واستخدام خط Tajawal وتنسيقات Tailwind CSS.
-2. استخدام JavaScript تفاعلي خالص (Pure JS) لإدارة سلة التسوق (إضافة، حذف، عداد السلة، زر الطلب الفوري).
-3. إذا تم تزويدك بمصفوفة صور أصول مرفوعة (embeddedAssets)، استخدم بياناتها الممررة مباشرة داخل وسوم <img> للمنتجات أو الأقسام المناسبة، وإلا فاستخدم صور ساعات فاخرة واقعية ومباشرة من Unsplash.
-4. إرجاع كود HTML الكامل فقط (يبدأ بـ <!DOCTYPE html> وينتهي بـ </html>) دون أي نصوص أو شروحات جانبية.`;
+    const systemPrompt = `أنت مهندس معماري أول للبرمجيات وتصميم واجهات الويب (Senior Principal UI/UX & Web Architect).
+مهمتك: تشييد متجر إلكتروني فائق الجودة، سريع جداً (Zero-Bloat)، ومتكامل التفاعل ضمن ملف HTML5 واحد مستقل تماماً.
 
-    let userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم:\n${prompt}`;
-    if (embeddedAssets.length > 0) {
-      userMessage += `\n\nالصور المرفوعة المتاحة للتضمين المباشر في المتجر (عدد ${embeddedAssets.length}):\n` + JSON.stringify(embeddedAssets);
+الضوابط الصارمة للإخراج:
+1. الجودة والأداء: كود نظيف، خالٍ من الحشو والمكتبات الزائدة، معتمد على Tailwind CSS عبر CDN وخط Tajawal.
+2. اللغة والاتجاه: دعم كامل للغة العربية الفصحى مع تفعيل dir="rtl" و lang="ar".
+3. المعايير القياسية والـ SEO:
+   - إضافة وسوم <title>, <meta name="description">, <meta name="viewport">, ووسوم OpenGraph للمتجر.
+   - استخدام عناصر HTML دلالية (header, nav, main, section, article, footer).
+4. التفاعلية البرمجية (Pure JavaScript):
+   - نظام سلة مشتريات متكامل (إضافة، تعديل كمية، حذف، حساب إجمالي فوري، ونافذة منبثقة أو شريط جانبي للسلة Drawer).
+   - تجاوب مثالي مع نقرات اللمس للأجهزة اللوحية والهواتف.
+5. الأصول والصور:
+   - استخدام صور أصول متناسقة وواقعية وعالية الجودة متوافقة مع طبيعة المتجر، مع تضمين سمة alt بدقة لكافة الصور.
+6. صيغة الإخراج: أرجع الكود البرمجي الصافي فقط بدءاً من <!DOCTYPE html> إلى </html> دون أي نصوص أو مقدمات أو علامات ماركداون.`;
+
+    let userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم التفصيلي:\n${prompt}`;
+    if (embeddedAssets && embeddedAssets.length > 0) {
+      userMessage += `\n\nأصول الصور المتوفرة للاستخدام:\n` + JSON.stringify(embeddedAssets);
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -41,7 +49,7 @@ export async function onRequestPost(context) {
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
         ],
-        temperature: 0.3
+        temperature: 0.25
       })
     });
 
