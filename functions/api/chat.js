@@ -1,66 +1,65 @@
 export async function onRequestPost(context) {
-  try {
-    const { request, env } = context;
-    const body = await request.json();
-    const { blueprint } = body;
+  const { request, env } = context;
 
-    const apiKey = env.BUILDER_API_KEY;
+  try {
+    const body = await request.json();
+    const { prompt, blueprint } = body;
+    const headerKey = request.headers.get("X-Custom-API-Key");
+    const apiKey = headerKey || env.OPENROUTER_API_KEY || env.BUILDER_API_KEY || env.PLANNER_API_KEY;
+
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "مفتاح BUILDER_API_KEY غير متوفر في متغيرات البيئة." }), {
-        status: 500,
+      return new Response(JSON.stringify({ error: "مفتاح API غير متوفر. يرجى إدخاله في الحقل العلوي أو ضبطه في Cloudflare." }), {
+        status: 401,
         headers: { "Content-Type": "application/json; charset=utf-8" }
       });
     }
 
-    const systemPrompt = `You are a Master Frontend Engineer.
-Generate a complete, fully functional, zero-bloat Single-File HTML/Tailwind/JS web application based on the provided JSON Blueprint.
-Rules:
-1. Return ONLY valid HTML inside \`\`\`html \`\`\` markdown code block.
-2. Zero external dependencies other than Tailwind CDN and standard Google Fonts.
-3. Full RTL (Arabic) support with modern typography and interactive vanilla JavaScript.
-4. Seamlessly integrate and display real asset image URLs (e.g. from https://njagentic.online/assets/...).
-5. Ensure mobile and tablet responsive layouts without floating obstructive drawers/sidebars.`;
+    const systemPrompt = `أنت مبرمج واجهات ويب أول (Senior Full-Stack UI/UX Engineer).
+مهمتك بناء صفحة متجر إلكتروني متكاملة، نظيفة، فائقة الفخامة وجاهزة للعمل الفوري ضمن ملف HTML واحد مستقل (Single-File).
+المتطلبات الإلزامية:
+1. دعم RTL واللغة العربية الكاملة واستخدام خط Tajawal وتنسيقات Tailwind CSS.
+2. استخدام JavaScript تفاعلي خالص (Pure JS) لإدارة سلة التسوق (إضافة، حذف، عداد السلة، زر الطلب الفوري).
+3. بناء مكونات داكنة وتفاصيل ذهبية أنيقة، مع صور ساعات فاخرة واقعية من Unsplash.
+4. إرجاع كود HTML الكامل فقط (يبدأ بـ <!DOCTYPE html> وينتهي بـ </html>) دون أي نصوص أو شروحات جانبية.`;
+
+    const userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم:\n${prompt}`;
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://njagentic.online",
-        "X-Title": "Edge Workbench - Builder"
+        "Authorization": `Bearer ${apiKey.trim()}`,
+        "HTTP-Referer": "https://edge-workbench.pages.dev",
+        "X-Title": "Edge Workbench"
       },
       body: JSON.stringify({
-        model: "anthropic/claude-sonnet-5",
+        model: "anthropic/claude-sonnet-4",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: typeof blueprint === 'string' ? blueprint : JSON.stringify(blueprint) }
+          { role: "user", content: userMessage }
         ],
-        temperature: 0.1
+        temperature: 0.3
       })
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      return new Response(JSON.stringify({ error: `خطأ من مزود البناء (${response.status}): ${errText}` }), {
+      return new Response(JSON.stringify({ error: `خطأ التشييد (${response.status}): ${errText}` }), {
         status: response.status,
         headers: { "Content-Type": "application/json; charset=utf-8" }
       });
     }
 
     const data = await response.json();
-    const rawContent = data.choices?.[0]?.message?.content || "";
-    const match = rawContent.match(/```html\s*([\s\S]*?)\s*```/) || rawContent.match(/```\s*([\s\S]*?)\s*```/);
-    const cleanedCode = match ? match[1].trim() : rawContent.trim();
+    let code = data.choices?.[0]?.message?.content || "";
+    code = code.replace(/```html\n?/g, "").replace(/```\n?/g, "").trim();
 
-    return new Response(JSON.stringify({
-      code: cleanedCode,
-      choices: [{ message: { content: cleanedCode } }]
-    }), {
+    return new Response(JSON.stringify({ code }), {
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: `خطأ في محرك التشييد: ${err.message}` }), {
+    return new Response(JSON.stringify({ error: `خطأ تشييد الواجهة: ${err.message}` }), {
       status: 500,
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });

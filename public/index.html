@@ -1,723 +1,240 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="h-[100dvh] bg-slate-950 text-slate-100">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Edge Workbench - Universal UI Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة Edge Workbench | تشييد المتاجر عند الحافة</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Tajawal', sans-serif; }
-    code, pre { font-family: 'JetBrains Mono', monospace; }
-    
-    .prose-content h1, .prose-content h2, .prose-content h3 { font-weight: 700; color: #f8fafc; margin-top: 0.75rem; margin-bottom: 0.5rem; }
-    .prose-content h1 { font-size: 1.15rem; border-bottom: 1px solid #334155; padding-bottom: 0.25rem; }
-    .prose-content h2 { font-size: 1.05rem; }
-    .prose-content h3 { font-size: 0.95rem; }
-    .prose-content p { margin-bottom: 0.5rem; line-height: 1.6; }
-    .prose-content ul { list-style-type: disc; padding-right: 1.25rem; margin-bottom: 0.5rem; }
-    .prose-content ol { list-style-type: decimal; padding-right: 1.25rem; margin-bottom: 0.5rem; }
-    .prose-content li { margin-bottom: 0.25rem; }
-    .prose-content table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.8rem; }
-    .prose-content th, .prose-content td { border: 1px solid #334155; padding: 0.4rem 0.6rem; text-align: right; }
-    .prose-content th { background-color: #1e293b; color: #38bdf8; font-weight: 600; }
-    .prose-content tr:nth-child(even) { background-color: #0f172a; }
-    .prose-content hr { border: 0; border-top: 1px solid #334155; margin: 0.75rem 0; }
-    .prose-content blockquote { border-right: 3px solid #6366f1; padding-right: 0.75rem; color: #94a3b8; margin: 0.5rem 0; }
-    .prose-content code { background-color: #020617; padding: 0.15rem 0.3rem; border-radius: 0.25rem; color: #38bdf8; font-size: 0.75rem; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
   </style>
 </head>
-<body class="h-[100dvh] flex flex-col overflow-hidden select-none bg-slate-950">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- الترويسة العلوية -->
-  <header class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 shrink-0">
-    <div class="flex items-center gap-2">
-      <div class="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
-      <h1 class="font-bold text-sm tracking-wide text-white">Edge Workbench <span class="text-[10px] text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full mr-1">v3.1 Asset Pipeline</span></h1>
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+        ⚡
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-white leading-none">Edge Workbench</h1>
+        <p class="text-xs text-slate-400 mt-0.5">محرك بناء المتاجر الفوري عند الحافة</p>
+      </div>
     </div>
-    
+
+    <!-- Optional API Key Input & Status -->
     <div class="flex items-center gap-2">
-      <button onclick="toggleAssetModal()" class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 min-h-[36px]">
-        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        <span>رفع وسائط السيرفر</span>
-      </button>
-      <button id="btn-export" onclick="exportStandaloneHTML()" disabled class="hidden bg-slate-800 text-slate-500 cursor-not-allowed px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 min-h-[36px]">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        <span>تصدير HTML</span>
-      </button>
-      <button onclick="startNewSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition min-h-[36px]">
-        جلسة جديدة
-      </button>
+      <input type="password" id="customApiKey" placeholder="مفتاح OpenRouter (اختياري)" 
+             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-44 md:w-64 transition">
+      <span id="statusBadge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> جاهز
+      </span>
     </div>
   </header>
 
-  <!-- مساحة العمل الرئيسية -->
-  <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 min-h-0 overflow-hidden">
-
-    <!-- العمود الأيمن: المستشار والمخطط -->
-    <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0">
+  <!-- Main Workspace -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1800px] w-full mx-auto">
+    
+    <!-- Control & Blueprint Panel (Left on Desktop, Top on Mobile) -->
+    <section class="lg:col-span-5 flex flex-col gap-4">
       
-      <div class="h-12 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-3 shrink-0 gap-2">
-        <div class="flex items-center gap-1">
-          <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
-            <button id="tab-chat" onclick="switchLeftTab('chat')" class="px-3 py-1 rounded-md bg-indigo-600 text-white font-medium min-h-[32px]">النقاش والتحليل</button>
-            <button id="tab-blueprint" onclick="switchLeftTab('blueprint')" class="px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]">المخطط (JSON)</button>
-          </div>
+      <!-- Prompt Box -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <span>📝</span> وصف المتجر المطلوب
+          </label>
+          <span class="text-[11px] text-slate-400">يدعم التصميم السريع واللغة العربية</span>
         </div>
-
-        <button id="btn-approve" onclick="approveAndImplement()" disabled class="bg-slate-800 text-slate-500 cursor-not-allowed px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 min-h-[36px]">
-          <span>اعتماد المخطط وتشييده</span>
-          <span>←</span>
+        <textarea id="promptInput" rows="4" 
+                  placeholder="اكتب وصف متجرك هنا، مثل: أنشئ متجر ساعات فاخر بالكامل باسم DIUVAN بتصميم داكن وأزرار ذهبية وسلة مشتريات..."
+                  class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 custom-scroll resize-none"></textarea>
+        
+        <button id="btnPlan" onclick="generateBlueprint()" 
+                class="w-full bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-bold py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
+          <span>⚙️</span> توليد المخطط الهيكلي (Blueprint)
         </button>
       </div>
 
-      <!-- واجهة النقاش -->
-      <div id="view-chat" class="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm">
-          <div id="welcome-msg" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 leading-relaxed text-slate-300">
-            أهلاً بك. ناقش متطلبات أي مشروع، ارفع صور المنتجات الحقيقية للسيرفر عبر زر <strong>[رفع وسائط السيرفر]</strong>، ثم اضغط <strong>توليد المخطط</strong>.
-          </div>
+      <!-- Blueprint Editor / HITL -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex-1 flex flex-col gap-3 min-h-[300px] shadow-sm">
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <span>📐</span> المخطط الهيكلي (JSON Blueprint)
+          </label>
+          <button onclick="clearBlueprint()" class="text-xs text-slate-400 hover:text-rose-400 transition">مسح</button>
         </div>
-
-        <div id="images-preview-bar" class="hidden px-3 py-2 bg-slate-950 border-t border-slate-800 flex items-center gap-2 overflow-x-auto shrink-0"></div>
-
-        <div class="p-2.5 bg-slate-950 border-t border-slate-800 shrink-0 flex flex-col gap-2">
-          <textarea id="prompt-input" rows="2" placeholder="اكتب وصف المشروع أو المتطلبات هنا..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition resize-none leading-relaxed" oninput="saveDraftText()"></textarea>
-          
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <input type="file" id="image-input" accept="image/*" multiple class="hidden" onchange="handleFilesSelect(event)">
-              <button onclick="document.getElementById('image-input').click()" class="h-10 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 flex items-center gap-1.5 text-xs transition font-medium">
-                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                <span>صور مرجعية للتحليل</span>
-                <span id="img-count-badge" class="hidden bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
-              </button>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button onclick="sendConsultationMessage()" class="h-10 bg-indigo-600 hover:bg-indigo-500 text-white px-4 rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-md shadow-indigo-900/30">
-                <span>إرسال</span>
-              </button>
-              <button onclick="generateStructuredBlueprint()" class="h-10 bg-emerald-600 hover:bg-emerald-500 text-white px-4 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-md shadow-emerald-900/30">
-                <span>توليد المخطط</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- واجهة المخطط المعماري الهيكلي -->
-      <div id="view-blueprint" class="flex-1 hidden flex-col min-h-0 overflow-hidden bg-slate-950">
-        <pre id="blueprint-code" class="flex-1 min-h-0 p-3 overflow-y-auto text-xs text-emerald-400 selection:bg-emerald-900 leading-relaxed">// سيظهر كائن الـ JSON المعماري هنا...</pre>
+        
+        <textarea id="blueprintOutput" 
+                  placeholder="سيظهر المخطط الهيكلي هنا بصيغة JSON، يمكنك مراجعته أو تعديله يدوياً قبل تشييد المتجر..." 
+                  class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono text-emerald-400 placeholder-slate-600 focus:outline-none focus:border-emerald-500 custom-scroll resize-none"></textarea>
+        
+        <button id="btnBuild" onclick="buildStore()" disabled
+                class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
+          <span>🚀</span> تشييد وبرمجة المتجر بالكامل
+        </button>
       </div>
     </section>
 
-    <!-- العمود الأيسر: المعاينة الحية والكود البرمجي -->
-    <section id="preview-section" class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0 relative transition-all">
+    <!-- Live Preview & Code Panel (Right on Desktop) -->
+    <section class="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
       
-      <div class="h-12 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between px-3 shrink-0 gap-2">
-        <div class="flex items-center gap-1.5">
-          <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
-            <button id="tab-preview" onclick="switchRightTab('preview')" class="px-3 py-1 rounded-md bg-indigo-600 text-white font-medium min-h-[32px]">المعاينة</button>
-            <button id="tab-code" onclick="switchRightTab('code')" class="px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]">الكود</button>
-          </div>
-
-          <div id="viewport-controls" class="hidden sm:flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
-            <button onclick="setViewport('100%')" title="كامل الشاشة" class="px-2 py-1 rounded text-slate-300 hover:text-white hover:bg-slate-800">100%</button>
-            <button onclick="setViewport('768px')" title="تابلت" class="px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-slate-800">تابلت</button>
-            <button onclick="setViewport('375px')" title="جوال" class="px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-slate-800">جوال</button>
-          </div>
+      <!-- Preview Toolbar -->
+      <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button id="tabPreview" onclick="switchTab('preview')" class="px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white">معاينة حية</button>
+          <button id="tabCode" onclick="switchTab('code')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white">الكود المصدري</button>
         </div>
-
-        <div class="flex items-center gap-1.5">
-          <button onclick="openInNewTab()" title="فتح الموقع في تبويب مستقل" class="h-8 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md border border-slate-700 text-xs flex items-center gap-1 transition">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            <span>تبويب مستقل</span>
-          </button>
-          <button id="btn-fullscreen" onclick="toggleFullScreenPreview()" title="ملء الشاشة" class="h-8 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md border border-slate-700 text-xs flex items-center justify-center transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+        <div class="flex items-center gap-2">
+          <button onclick="downloadCode()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded border border-slate-700 transition flex items-center gap-1">
+            📥 تحميل HTML
           </button>
         </div>
       </div>
 
-      <!-- حاوية المعاينة الداكنة -->
-      <div id="view-preview" class="flex-1 bg-slate-950 flex flex-col min-h-0 overflow-hidden relative items-center justify-center">
+      <!-- Preview Content -->
+      <div class="flex-1 relative bg-slate-950 flex flex-col min-h-[480px]">
+        <iframe id="liveFrame" class="w-full h-full flex-1 border-none bg-white"></iframe>
         
-        <div id="notification-banner" class="hidden absolute top-2 inset-x-2 z-20 p-2.5 rounded-lg text-xs font-semibold shadow-lg text-center transition-all"></div>
+        <textarea id="codeView" readonly 
+                  class="hidden w-full h-full flex-1 bg-slate-950 text-slate-200 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"></textarea>
 
-        <div id="sandbox-status" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-xs text-slate-400 bg-slate-950 z-10">
-          <div id="status-spinner" class="hidden w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-          <p id="status-text">الحالة: بانتظار اعتماد وتشييد المخطط</p>
+        <!-- Loader Overlay -->
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-20">
+          <div class="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+          <p id="loadingText" class="text-sm font-medium text-slate-300">جارٍ معالجة الطلب...</p>
         </div>
-        
-        <div id="frame-wrapper" class="w-full h-full transition-all duration-200 flex justify-center bg-slate-950">
-          <iframe id="sandbox-frame" class="w-full h-full border-0 bg-slate-950 transition-all duration-200" sandbox="allow-scripts allow-modals"></iframe>
-        </div>
-
-        <!-- شريط التعديل التكراري المباشر -->
-        <div id="refine-bar" class="w-full p-2 bg-slate-900 border-t border-slate-800 shrink-0">
-          <div class="flex items-center gap-1.5">
-            <input type="text" id="refine-input" placeholder="اطلب تعديلاً مباشراً على هذا التصميم..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
-            <button id="btn-apply-refine" onclick="applyRefinement()" class="h-9 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-1">
-              <span>تطبيق التعديل</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div id="view-source" class="flex-1 hidden bg-slate-950 p-3 overflow-auto min-h-0">
-        <pre id="source-code" class="text-xs text-indigo-300 leading-relaxed">// الكود المصدري المستقل سيظهر هنا...</pre>
       </div>
     </section>
-
   </main>
 
-  <!-- نافذة إدارة ورفع وسائط السيرفر المركزية -->
-  <div id="asset-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[85dvh]">
-      <div class="p-3.5 border-b border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-          <h3 class="text-sm font-bold text-white">مدير وسائط السيرفر المركزي (Origin Storage)</h3>
-        </div>
-        <button onclick="toggleAssetModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
-      </div>
-
-      <div class="p-3.5 space-y-3 overflow-y-auto flex-1 text-xs">
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">اسم المجلد / المشروع على السيرفر:</label>
-          <input type="text" id="asset-project-name" value="diuvan" placeholder="مثال: diuvan أو watches" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-indigo-500">
-        </div>
-
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">اختر صور المنتجات الحقيقية من التابلت:</label>
-          <input type="file" id="server-file-input" accept="image/*" multiple class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-300 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
-        </div>
-
-        <button id="btn-do-upload" onclick="uploadFilesToServer()" class="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-900/30">
-          <span>رفع الصور إلى سيرفر Vultr وتوليد الروابط</span>
-        </button>
-
-        <!-- قائمة الروابط المرفوعة -->
-        <div id="uploaded-assets-list" class="space-y-2 pt-2 border-t border-slate-800 hidden">
-          <div class="flex items-center justify-between">
-            <label class="block text-emerald-400 font-bold">الصور المرفوعة الجاهزة للاستخدام:</label>
-            <button onclick="insertAllUploadedUrls()" class="px-2.5 py-1 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white rounded text-[11px] font-semibold transition">
-              إدراج جميع الروابط
-            </button>
-          </div>
-          <div id="uploaded-items-container" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    let currentBlueprint = null;
-    let currentGeneratedCode = null;
-    let attachedImages = [];
-    let conversationHistory = [];
-    let isFullScreen = false;
-    let latestUploadedUrls = [];
+    let currentHtmlCode = "";
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadCurrentSession();
-    });
-
-    function toggleAssetModal() {
-      const modal = document.getElementById('asset-modal');
-      modal.classList.toggle('hidden');
-    }
-
-    async function uploadFilesToServer() {
-      const fileInput = document.getElementById('server-file-input');
-      const projectInput = document.getElementById('asset-project-name');
-      const btn = document.getElementById('btn-do-upload');
-      
-      const files = fileInput.files;
-      const project = projectInput.value.trim() || 'general';
-
-      if (!files.length) {
-        showNotice('يرجى اختيار صورة واحدة على الأقل من جهازك.', 'error');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> جاري الرفع للسيرفر...';
-
-      const formData = new FormData();
-      formData.append('project', project);
-      for (let i = 0; i < files.length; i++) {
-        formData.append('images', files[i]);
-      }
-
-      try {
-        const res = await fetch('https://njagentic.online/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-
-        if (data.success && data.urls) {
-          latestUploadedUrls = data.urls;
-          showNotice(`تم رفع ${data.urls.length} صورة بنجاح إلى السيرفر.`);
-          renderUploadedUrls(data.urls);
-        } else {
-          showNotice('فشل الرفع: ' + (data.error || 'خطأ غير معروف'), 'error');
-        }
-      } catch (e) {
-        showNotice('خطأ في الاتصال بسيرفر الرفع: ' + e.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>رفع الصور إلى سيرفر Vultr وتوليد الروابط</span>';
-      }
-    }
-
-    function renderUploadedUrls(urls) {
-      const list = document.getElementById('uploaded-assets-list');
-      const container = document.getElementById('uploaded-items-container');
-      list.classList.remove('hidden');
-      container.innerHTML = '';
-      
-      urls.forEach((url, idx) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between gap-2 p-1.5 bg-slate-950 border border-slate-800 rounded text-[11px]';
-        row.innerHTML = `
-          <div class="flex items-center gap-2 truncate">
-            <img src="${url}" class="w-7 h-7 object-cover rounded border border-slate-700 shrink-0">
-            <span class="truncate text-slate-300 font-mono text-[10px] select-all">${url}</span>
-          </div>
-          <div class="flex items-center gap-1 shrink-0">
-            <button id="btn-insert-${idx}" onclick="insertUrlToPrompt('${url}', this)" class="px-2 py-1 bg-indigo-600/40 hover:bg-indigo-600 text-indigo-200 hover:text-white rounded text-[10px] transition">إدراج</button>
-            <button onclick="copyToClipboard('${url}', this)" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] transition">نسخ</button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function insertUrlToPrompt(url, btn) {
-      const prompt = document.getElementById('prompt-input');
-      prompt.value += `\n- رابط صورة معتمدة: ${url}`;
-      saveDraftText();
-      
-      if (btn) {
-        const orig = btn.textContent;
-        btn.textContent = 'تم ✓';
-        btn.className = 'px-2 py-1 bg-emerald-600 text-white rounded text-[10px]';
-        setTimeout(() => {
-          btn.textContent = orig;
-          btn.className = 'px-2 py-1 bg-indigo-600/40 hover:bg-indigo-600 text-indigo-200 hover:text-white rounded text-[10px] transition';
-        }, 1500);
-      }
-      showNotice('تم إدراج رابط الصورة في صندوق المتطلبات بنجاح.');
-    }
-
-    function insertAllUploadedUrls() {
-      if (!latestUploadedUrls.length) return;
-      const prompt = document.getElementById('prompt-input');
-      prompt.value += '\n\nقائمة صور المنتجات المعتمدة من السيرفر:\n' + latestUploadedUrls.map(u => `- ${u}`).join('\n') + '\n';
-      saveDraftText();
-      showNotice(`تم إدراج جميع الروابط (${latestUploadedUrls.length}) في صندوق المتطلبات.`);
-    }
-
-    function copyToClipboard(text, btn) {
-      navigator.clipboard.writeText(text).then(() => {
-        if (btn) {
-          const orig = btn.textContent;
-          btn.textContent = 'نُسخ ✓';
-          setTimeout(() => { btn.textContent = orig; }, 1500);
-        }
-        showNotice('تم نسخ الرابط إلى الحافظة.');
-      });
-    }
-
-    function showNotice(text, type = 'info') {
-      const banner = document.getElementById('notification-banner');
-      banner.className = `absolute top-2 inset-x-2 z-20 p-2.5 rounded-lg text-xs font-semibold shadow-lg text-center transition-all ${
-        type === 'error' ? 'bg-rose-900/90 text-rose-200 border border-rose-700' : 'bg-indigo-900/90 text-indigo-200 border border-indigo-700'
-      }`;
-      banner.textContent = text;
-      banner.classList.remove('hidden');
-      setTimeout(() => { banner.classList.add('hidden'); }, 4000);
-    }
-
-    function saveCurrentSession() { if (window.isResetting) return;
-      const state = {
-        history: conversationHistory,
-        blueprint: currentBlueprint,
-        code: currentGeneratedCode,
-        draft: document.getElementById('prompt-input').value
-      };
-      localStorage.setItem('workbench_active_session', JSON.stringify(state));
-    }
-
-    function loadCurrentSession() {
-      try {
-        const raw = localStorage.getItem('workbench_active_session');
-        if (!raw) return;
-        const state = JSON.parse(raw);
-
-        if (state.draft) document.getElementById('prompt-input').value = state.draft;
-
-        if (state.history && state.history.length > 0) {
-          conversationHistory = state.history;
-          const welcome = document.getElementById('welcome-msg');
-          if (welcome) welcome.remove();
-
-          conversationHistory.forEach(item => {
-            appendMessage(item.role, item.content, item.images, false);
-          });
-        }
-
-        if (state.blueprint) {
-          currentBlueprint = state.blueprint;
-          document.getElementById('blueprint-code').textContent = typeof state.blueprint === 'string' ? state.blueprint : JSON.stringify(state.blueprint, null, 2);
-          const btn = document.getElementById('btn-approve');
-          btn.disabled = false;
-          btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30';
-        }
-
-        if (state.code) {
-          currentGeneratedCode = state.code;
-          document.getElementById('source-code').textContent = state.code;
-          document.getElementById('sandbox-frame').srcdoc = state.code;
-          document.getElementById('sandbox-status').classList.add('hidden');
-
-          const exportBtn = document.getElementById('btn-export');
-          exportBtn.classList.remove('hidden');
-          exportBtn.disabled = false;
-          exportBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-900/30 min-h-[36px]';
-        }
-      } catch (e) {
-        console.error('فشل استرجاع الجلسة:', e);
-      }
-    }
-
-    function saveDraftText() {
-      saveCurrentSession();
-    }
-
-    function switchLeftTab(tab) {
-      const isChat = tab === 'chat';
-      document.getElementById('view-chat').classList.toggle('hidden', !isChat);
-      document.getElementById('view-blueprint').classList.toggle('hidden', isChat);
-      document.getElementById('tab-chat').className = isChat ? 'px-3 py-1 rounded-md bg-indigo-600 text-white font-medium min-h-[32px]' : 'px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]';
-      document.getElementById('tab-blueprint').className = !isChat ? 'px-3 py-1 rounded-md bg-indigo-600 text-white font-medium min-h-[32px]' : 'px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]';
-    }
-
-    function switchRightTab(tab) {
-      const isPreview = tab === 'preview';
-      document.getElementById('view-preview').classList.toggle('hidden', !isPreview);
-      document.getElementById('view-source').classList.toggle('hidden', isPreview);
-      document.getElementById('tab-preview').className = isPreview ? 'px-3 py-1 rounded-md bg-indigo-600 text-white font-medium min-h-[32px]' : 'px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]';
-      document.getElementById('tab-code').className = !isPreview ? 'px-3 py-1 rounded-md bg-indigo-600 text-white font-medium min-h-[32px]' : 'px-3 py-1 rounded-md text-slate-400 hover:text-white min-h-[32px]';
-    }
-
-    function setViewport(width) {
-      const wrapper = document.getElementById('frame-wrapper');
-      wrapper.style.maxWidth = width;
-      wrapper.className = width !== '100%' 
-        ? 'w-full h-full transition-all duration-200 flex justify-center border-x border-slate-800 shadow-2xl bg-slate-950' 
-        : 'w-full h-full transition-all duration-200 flex justify-center bg-slate-950';
-    }
-
-    function toggleFullScreenPreview() {
-      const sec = document.getElementById('preview-section');
-      isFullScreen = !isFullScreen;
-      sec.className = isFullScreen 
-        ? 'fixed inset-0 z-50 flex flex-col bg-slate-900 overflow-hidden' 
-        : 'flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-0 relative transition-all';
-    }
-
-    function openInNewTab() {
-      if (!currentGeneratedCode) {
-        showNotice('يرجى تشييد الواجهة أولاً لفتحها في تبويب مستقل.', 'error');
-        return;
-      }
-      const blob = new Blob([currentGeneratedCode], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    }
-
-    function handleFilesSelect(e) {
-      const files = Array.from(e.target.files);
-      if (!files.length) return;
-
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          attachedImages.push({ name: file.name, base64: evt.target.result });
-          renderImagesPreview();
-        };
-        reader.readAsDataURL(file);
-      });
-      e.target.value = '';
-    }
-
-    function removeImage(index) {
-      attachedImages.splice(index, 1);
-      renderImagesPreview();
-    }
-
-    function renderImagesPreview() {
-      const bar = document.getElementById('images-preview-bar');
-      const badge = document.getElementById('img-count-badge');
-      bar.innerHTML = '';
-
-      if (attachedImages.length === 0) {
-        bar.classList.add('hidden');
-        badge.classList.add('hidden');
-        return;
-      }
-
-      badge.textContent = attachedImages.length;
-      badge.classList.remove('hidden');
-      bar.classList.remove('hidden');
-
-      attachedImages.forEach((img, idx) => {
-        const thumb = document.createElement('div');
-        thumb.className = 'relative shrink-0 w-12 h-12 rounded-lg border border-indigo-500/50 overflow-hidden group';
-        thumb.innerHTML = `
-          <img src="${img.base64}" class="w-full h-full object-cover">
-          <button onclick="removeImage(${idx})" class="absolute inset-0 bg-slate-950/70 text-rose-400 opacity-0 group-hover:opacity-100 group-focus:opacity-100 flex items-center justify-center font-bold text-xs transition">✕</button>
-        `;
-        bar.appendChild(thumb);
-      });
-    }
-
-    function appendMessage(role, text, images = [], shouldSave = true) {
-      const chat = document.getElementById('chat-messages');
-      const msgDiv = document.createElement('div');
-      
-      if (role === 'user') {
-        msgDiv.className = 'bg-indigo-950/70 p-3 rounded-xl border border-indigo-800/50 leading-relaxed text-indigo-100 mr-4';
-        let html = `<p class="whitespace-pre-wrap">${text}</p>`;
-        if (images && images.length > 0) {
-          html += `<div class="mt-2.5 flex flex-wrap gap-2">`;
-          images.forEach(img => {
-            html += `<img src="${img.base64 || img}" class="w-16 h-16 object-cover rounded-lg border border-indigo-700">`;
-          });
-          html += `</div>`;
-        }
-        msgDiv.innerHTML = html;
+    function setLoader(show, text = "") {
+      const overlay = document.getElementById("loadingOverlay");
+      const label = document.getElementById("loadingText");
+      if (show) {
+        label.innerText = text;
+        overlay.classList.remove("hidden");
       } else {
-        msgDiv.className = 'bg-slate-900 p-3.5 rounded-xl border border-slate-800 leading-relaxed text-slate-200 ml-4 prose-content shadow-sm';
-        msgDiv.innerHTML = marked.parse(text);
-      }
-
-      chat.appendChild(msgDiv);
-      chat.scrollTop = chat.scrollHeight;
-
-      if (shouldSave) saveCurrentSession();
-    }
-
-    async function sendConsultationMessage() {
-      const input = document.getElementById('prompt-input');
-      const text = input.value.trim();
-      if (!text && attachedImages.length === 0) return;
-
-      const currentImages = [...attachedImages];
-      appendMessage('user', text || 'مرفق صور مرجعية للمعاينة', currentImages);
-      conversationHistory.push({ role: 'user', content: text, images: currentImages });
-
-      input.value = '';
-      attachedImages = [];
-      renderImagesPreview();
-      saveCurrentSession();
-
-      const loadingMsg = document.createElement('div');
-      loadingMsg.className = 'text-xs text-indigo-400 italic p-2';
-      loadingMsg.textContent = 'جاري التحليل المعماري وصياغة الرأي عبر Gemini Flash...';
-      document.getElementById('chat-messages').appendChild(loadingMsg);
-      document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-
-      try {
-        const res = await fetch('/api/consult', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, images: currentImages, history: conversationHistory })
-        });
-        const data = await res.json();
-        loadingMsg.remove();
-        if (data.reply) {
-          appendMessage('assistant', data.reply);
-          conversationHistory.push({ role: 'assistant', content: data.reply });
-          saveCurrentSession();
-        } else {
-          appendMessage('assistant', data.error || 'تعذر استلام الرد.');
-        }
-      } catch (e) {
-        loadingMsg.remove();
-        appendMessage('assistant', 'خطأ في الاتصال بالخدمة: ' + e.message);
+        overlay.classList.add("hidden");
       }
     }
 
-    async function generateStructuredBlueprint() {
-      const input = document.getElementById('prompt-input');
-      const text = input.value.trim();
-      const currentImages = [...attachedImages];
+    function switchTab(tab) {
+      const frame = document.getElementById("liveFrame");
+      const code = document.getElementById("codeView");
+      const tabP = document.getElementById("tabPreview");
+      const tabC = document.getElementById("tabCode");
 
-      if (text || currentImages.length > 0) {
-        conversationHistory.push({ role: 'user', content: text, images: currentImages });
-        input.value = '';
-        attachedImages = [];
-        renderImagesPreview();
-      }
-
-      switchLeftTab('blueprint');
-      const codeEl = document.getElementById('blueprint-code');
-      codeEl.textContent = '// جاري صياغة المخطط المعماري التجريدي عبر DeepSeek...';
-
-      try {
-        const res = await fetch('/api/plan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history: conversationHistory, images: currentImages })
-        });
-        const data = await res.json();
-        const content = data.choices ? data.choices[0].message.content : (data.error || JSON.stringify(data, null, 2));
-        codeEl.textContent = content;
-        currentBlueprint = content;
-
-        const btn = document.getElementById('btn-approve');
-        btn.disabled = false;
-        btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30';
-        saveCurrentSession();
-      } catch (e) {
-        codeEl.textContent = '// خطأ في توليد المخطط: ' + e.message;
+      if (tab === 'preview') {
+        frame.classList.remove("hidden");
+        code.classList.add("hidden");
+        tabP.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
+        tabC.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
+      } else {
+        frame.classList.add("hidden");
+        code.classList.remove("hidden");
+        tabC.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
+        tabP.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
       }
     }
 
-    async function approveAndImplement() {
-      if (!currentBlueprint) return;
-      const status = document.getElementById('sandbox-status');
-      const spinner = document.getElementById('status-spinner');
-      const statusText = document.getElementById('status-text');
-
-      status.classList.remove('hidden');
-      spinner.classList.remove('hidden');
-      statusText.textContent = 'جاري تشييد الواجهة وبناء كود الويب المستقل...';
-
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ blueprint: currentBlueprint })
-        });
-        
-        const data = await res.json();
-
-        if (!res.ok || data.error || !data.code) {
-          throw new Error(data.error || 'لم يتم استلام كود صالح من الخادم.');
-        }
-
-        const code = data.code;
-        currentGeneratedCode = code;
-        document.getElementById('source-code').textContent = code;
-        
-        const frame = document.getElementById('sandbox-frame');
-        frame.srcdoc = code;
-        
-        status.classList.add('hidden');
-        spinner.classList.add('hidden');
-
-        const exportBtn = document.getElementById('btn-export');
-        exportBtn.classList.remove('hidden');
-        exportBtn.disabled = false;
-        exportBtn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-900/30 min-h-[36px]';
-        saveCurrentSession();
-      } catch (e) {
-        spinner.classList.add('hidden');
-        statusText.innerHTML = `<span class="text-rose-400 font-bold">خطأ في التشييد:</span><br>${e.message}`;
-      }
+    function clearBlueprint() {
+      document.getElementById("blueprintOutput").value = "";
+      document.getElementById("btnBuild").disabled = true;
     }
 
-    async function applyRefinement() {
-      const input = document.getElementById('refine-input');
-      const instruction = input.value.trim();
-
-      if (!instruction) {
-        showNotice('يرجى كتابة التعديل المطلوب أولاً.', 'error');
+    async function generateBlueprint() {
+      const prompt = document.getElementById("promptInput").value.trim();
+      const apiKey = document.getElementById("customApiKey").value.trim();
+      if (!prompt) {
+        alert("يرجى إدخال وصف المتجر أولاً.");
         return;
       }
 
-      if (!currentGeneratedCode) {
-        showNotice('يجب الضغط على [اعتماد المخطط وتشييده] أولاً لتوليد الصفحة الأساسية قبل التعديل.', 'error');
+      setLoader(true, "جارٍ تحليل المتطلبات وتوليد المخطط الهيكلي (Blueprint)...");
+
+      try {
+        const res = await fetch("/api/plan", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
+          },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "فشل الاتصال بالخادم");
+
+        document.getElementById("blueprintOutput").value = JSON.stringify(data.blueprint, null, 2);
+        document.getElementById("btnBuild").disabled = false;
+      } catch (err) {
+        alert("خطأ: " + err.message);
+      } finally {
+        setLoader(false);
+      }
+    }
+
+    async function buildStore() {
+      const blueprintText = document.getElementById("blueprintOutput").value.trim();
+      const prompt = document.getElementById("promptInput").value.trim();
+      const apiKey = document.getElementById("customApiKey").value.trim();
+
+      if (!blueprintText) {
+        alert("يرجى توليد أو إدخال المخطط الهيكلي أولاً.");
         return;
       }
 
-      const status = document.getElementById('sandbox-status');
-      const spinner = document.getElementById('status-spinner');
-      const statusText = document.getElementById('status-text');
-
-      status.classList.remove('hidden');
-      spinner.classList.remove('hidden');
-      statusText.textContent = 'جاري تطبيق التعديل التكراري عبر DeepSeek...';
+      setLoader(true, "جارٍ تشييد وتوليد شفرة المتجر الكاملة...");
 
       try {
-        const res = await fetch('/api/refine', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
+          },
           body: JSON.stringify({
-            current_code: currentGeneratedCode,
-            refinement_instruction: instruction
+            prompt: prompt || "قم ببناء المتجر بناءً على المخطط المرفق",
+            blueprint: JSON.parse(blueprintText)
           })
         });
-        
+
         const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "فشل في تشييد الكود");
 
-        if (!res.ok || data.error || !data.code) {
-          throw new Error(data.error || 'فشل تطبيق التعديل.');
-        }
-
-        const code = data.code;
-        currentGeneratedCode = code;
-        document.getElementById('source-code').textContent = code;
-        document.getElementById('sandbox-frame').srcdoc = code;
-        input.value = '';
+        currentHtmlCode = data.code || "";
+        document.getElementById("codeView").value = currentHtmlCode;
         
-        status.classList.add('hidden');
-        spinner.classList.add('hidden');
-        showNotice('تم تطبيق التعديل بنجاح.');
-        saveCurrentSession();
-      } catch (e) {
-        spinner.classList.add('hidden');
-        statusText.innerHTML = `<span class="text-rose-400 font-bold">خطأ أثناء التعديل:</span><br>${e.message}`;
+        const frame = document.getElementById("liveFrame");
+        frame.srcdoc = currentHtmlCode;
+        switchTab('preview');
+      } catch (err) {
+        alert("خطأ التشييد: " + err.message);
+      } finally {
+        setLoader(false);
       }
     }
 
-    function exportStandaloneHTML() {
-      if (!currentGeneratedCode) return;
-      const blob = new Blob([currentGeneratedCode], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'index.html';
-      document.body.appendChild(a);
+    function downloadCode() {
+      if (!currentHtmlCode) {
+        alert("لا يوجد كود منشأ حالياً لتحميله.");
+        return;
+      }
+      const blob = new Blob([currentHtmlCode], { type: "text/html;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "index.html";
       a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function startNewSession() {
-    if (confirm("هل تريد بدء جلسة جديدة وأرشفة الجلسة الحالية؟")) {
-      window.isResetting = true;
-      try {
-        const raw = localStorage.getItem("workbench_active_session");
-        if (raw) {
-          let sessions = JSON.parse(localStorage.getItem("workbench_saved_sessions") || "[]");
-          sessions.unshift(JSON.parse(raw));
-          if (sessions.length > 5) sessions = sessions.slice(0, 5);
-          localStorage.setItem("workbench_saved_sessions", JSON.stringify(sessions));
-        }
-      } catch(e) {}
-      localStorage.removeItem("workbench_active_session");
-      location.replace(location.pathname);
-    }
     }
   </script>
 </body>

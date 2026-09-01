@@ -3,13 +3,13 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { prompt, images = [], messages = [] } = body;
-
-    const apiKey = env.OPENROUTER_API_KEY || env.PLANNER_API_KEY || env.BUILDER_API_KEY;
+    const { prompt, messages = [] } = body;
+    const headerKey = request.headers.get("X-Custom-API-Key");
+    const apiKey = headerKey || env.OPENROUTER_API_KEY || env.PLANNER_API_KEY || env.BUILDER_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "لم يتم العثور على مفتاح API في متغيرات البيئة بـ Cloudflare." }), {
-        status: 500,
+      return new Response(JSON.stringify({ error: "مفتاح API غير متوفر. يرجى إدخاله في الحقل العلوي أو ضبطه في Cloudflare." }), {
+        status: 401,
         headers: { "Content-Type": "application/json; charset=utf-8" }
       });
     }
