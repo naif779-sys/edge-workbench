@@ -28,103 +28,102 @@
       </div>
     </div>
 
-    <!-- API Key & Global Token Badge -->
-    <div class="flex items-center gap-3">
-      <div class="hidden sm:flex items-center gap-2 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-xs">
-        <span class="text-slate-400">التوكن التقديري:</span>
-        <span id="headerTokenCount" class="font-mono font-bold text-amber-400">0</span>
-      </div>
-
+    <!-- API Key Input -->
+    <div class="flex items-center gap-2">
       <input type="password" id="customApiKey" placeholder="مفتاح OpenRouter (يُحفظ تلقائياً)" 
              onchange="saveApiKey(this.value)"
-             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-44 md:w-60 transition">
+             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-48 md:w-64 transition">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> جاهز
+      </span>
     </div>
   </header>
 
   <!-- Main Workspace -->
   <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1800px] w-full mx-auto">
     
-    <!-- Control Panel -->
+    <!-- Control & Discussion Panel (Right) -->
     <section class="lg:col-span-5 flex flex-col gap-4">
       
-      <!-- Prompt & Image Controls Box -->
+      <!-- 1. Upper Box: Prompt & Iterative Conversation -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
         <div class="flex items-center justify-between">
           <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <span>📝</span> متطلبات المتجر والتصميم
+            <span>💬</span> متطلبات المتجر والمحادثة التكرارية
           </label>
-          <!-- Token Meter Badge -->
-          <div id="tokenBadge" class="flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-emerald-400">
-            <span>⚡</span>
-            <span id="calcTokens">0</span> توكن
-            <span class="text-slate-500">|</span>
-            <span id="calcCost" class="text-slate-400">~$0.0000</span>
-          </div>
+          <span class="text-[11px] text-slate-400">كتابة الوصف أو طلب التعديل</span>
         </div>
 
         <textarea id="promptInput" rows="3" 
-                  oninput="updateTokenEstimate()"
-                  placeholder="اكتب وصف المتجر هنا أو ارفع صوراً لتضمينها أو تحليلها..."
+                  oninput="updateLiveTokenEstimate()"
+                  placeholder="اكتب وصف المتجر، أو اطلب تعديلاً (مثال: اجعل الأزرار دائرية، غيّر الخط، أضف قسماً للتقييمات)..."
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 custom-scroll resize-none"></textarea>
         
-        <!-- Image Upload Dropzone -->
-        <div class="border border-dashed border-slate-800 rounded-lg p-3 bg-slate-950/50 flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-              <span>🖼️</span> إرفاق الصور (ضغط فوري)
-            </span>
-            <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2.5 py-1 rounded border border-slate-700 transition">
-              اختيار ملفات
-              <input type="file" id="imageInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
-            </label>
-          </div>
-          
-          <!-- Image Thumbnails Container -->
-          <div id="imagePreviewContainer" class="flex gap-2 overflow-x-auto py-1 custom-scroll hidden"></div>
-        </div>
+        <!-- Hidden File Input -->
+        <input type="file" id="imageInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
 
-        <!-- Action Buttons Grid -->
-        <div class="grid grid-cols-2 gap-2 pt-1">
+        <!-- Three Horizontal Action Buttons -->
+        <div class="grid grid-cols-3 gap-2 pt-1">
           <button id="btnReadImage" onclick="analyzeAndPlan()" 
-                  class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
-            <span>👁️</span> قراءة وتحليل النموذج
+                  class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold py-2 px-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
+            <span>👁️</span> قراءة وتحليل
+          </button>
+
+          <button onclick="document.getElementById('imageInput').click()" 
+                  class="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 font-bold py-2 px-2 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1">
+            <span>🖼️</span> رفع الصور مباشرة
           </button>
           
           <button id="btnPlan" onclick="generateBlueprint()" 
-                  class="bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
-            <span>⚙️</span> توليد المخطط الهيكلي
+                  class="bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-bold py-2 px-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
+            <span>⚙️</span> توليد المخطط
           </button>
         </div>
+
+        <!-- Image Thumbnails Container -->
+        <div id="imagePreviewContainer" class="flex gap-2 overflow-x-auto py-1 custom-scroll hidden border-t border-slate-800/80 pt-2"></div>
       </div>
 
-      <!-- Blueprint Editor / HITL -->
+      <!-- 2. Lower Box: Visual Comprehension & Discussion Log -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex-1 flex flex-col gap-3 min-h-[280px] shadow-sm">
         <div class="flex items-center justify-between">
           <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <span>📐</span> المخطط الهيكلي (JSON Blueprint)
+            <span>🧠</span> شاشة الاستيعاب والتحليل المعماري
           </label>
-          <button onclick="clearBlueprint()" class="text-xs text-slate-400 hover:text-rose-400 transition">مسح</button>
+          <span id="analysisStatus" class="text-xs text-slate-400">بانتظار المدخلات...</span>
         </div>
         
-        <textarea id="blueprintOutput" 
-                  oninput="updateTokenEstimate()"
-                  placeholder="سيظهر المخطط الهيكلي هنا بصيغة JSON..." 
-                  class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono text-emerald-400 placeholder-slate-600 focus:outline-none focus:border-emerald-500 custom-scroll resize-none"></textarea>
+        <div id="analysisLog" 
+             class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-300 custom-scroll overflow-y-auto leading-relaxed space-y-2 font-sans">
+          <p class="text-slate-500 italic">ستظهر هنا تفاصيل ما فهمه الذكاء الاصطناعي من الصور والنصوص (الألوان، توزيع الأقسام، الهوية البصرية، وملاحظات التطوير)...</p>
+        </div>
         
-        <button id="btnBuild" onclick="buildStore()" disabled
-                class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
-          <span>🚀</span> تشييد وبرمجة المتجر بالكامل
-        </button>
+        <!-- Bottom Action Bar (Estimate & Build) -->
+        <div class="grid grid-cols-12 gap-2 pt-1">
+          <button id="btnEstimate" onclick="estimateBuildTokens()" 
+                  class="col-span-5 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 px-2 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1.5">
+            <span>📊</span> <span id="estimateBtnLabel">تقدير التوكن</span>
+          </button>
+
+          <button id="btnBuild" onclick="buildStore()" disabled
+                  class="col-span-7 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+            <span>🚀</span> تشييد وبرمجة المتجر
+          </button>
+        </div>
       </div>
     </section>
 
-    <!-- Live Preview & Code Panel -->
+    <!-- Preview & Outputs Panel (Left) -->
     <section class="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      
+      <!-- Toolbar with 3 Tabs -->
       <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
           <button id="tabPreview" onclick="switchTab('preview')" class="px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white">معاينة حية</button>
           <button id="tabCode" onclick="switchTab('code')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white">الكود المصدري</button>
+          <button id="tabBlueprint" onclick="switchTab('blueprint')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white">📐 المخطط الهيكلي</button>
         </div>
+        
         <div class="flex items-center gap-2">
           <button onclick="downloadCode()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded border border-slate-700 transition flex items-center gap-1">
             📥 تحميل HTML
@@ -132,12 +131,23 @@
         </div>
       </div>
 
+      <!-- Content Area -->
       <div class="flex-1 relative bg-slate-950 flex flex-col min-h-[480px]">
+        <!-- 1. Live Frame -->
         <iframe id="liveFrame" class="w-full h-full flex-1 border-none bg-white"></iframe>
         
+        <!-- 2. Source Code View -->
         <textarea id="codeView" readonly 
-                  class="hidden w-full h-full flex-1 bg-slate-950 text-slate-200 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"></textarea>
+                  class="hidden w-full h-full flex-1 bg-slate-950 text-emerald-400 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"
+                  placeholder="سيظهر الكود المصدري هنا فور اكتمال التشييد..."></textarea>
 
+        <!-- 3. Blueprint JSON View -->
+        <textarea id="blueprintView" 
+                  oninput="updateLiveTokenEstimate()"
+                  class="hidden w-full h-full flex-1 bg-slate-950 text-amber-400 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"
+                  placeholder="سيظهر كائن JSON الخاص بالمخطط الهيكلي هنا ويمكنك تعديله..."></textarea>
+
+        <!-- Loading Overlay -->
         <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-20">
           <div class="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
           <p id="loadingText" class="text-sm font-medium text-slate-300">جارٍ المعالجة...</p>
@@ -148,13 +158,14 @@
 
   <script>
     let currentHtmlCode = "";
+    let currentBlueprint = null;
     let uploadedImages = [];
     let imageTokensCount = 0;
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedKey = localStorage.getItem("EDGE_WORKBENCH_API_KEY");
       if (savedKey) document.getElementById("customApiKey").value = savedKey;
-      updateTokenEstimate();
+      updateLiveTokenEstimate();
     });
 
     function saveApiKey(key) {
@@ -164,34 +175,6 @@
 
     function getApiKey() {
       return document.getElementById("customApiKey").value.trim() || localStorage.getItem("EDGE_WORKBENCH_API_KEY") || "";
-    }
-
-    // Token & Cost Estimator
-    function updateTokenEstimate() {
-      const prompt = document.getElementById("promptInput").value || "";
-      const blueprint = document.getElementById("blueprintOutput").value || "";
-      
-      // Arabic/English Token heuristic: ~1 token per 2.5 Arabic chars, ~4 chars English
-      const textChars = prompt.length + blueprint.length;
-      const textTokens = Math.ceil(textChars / 2.8);
-      
-      const totalTokens = textTokens + imageTokensCount;
-      
-      // Pricing heuristic for Claude 3 Haiku ($0.25 per 1M input tokens)
-      const estimatedCost = (totalTokens / 1000000) * 0.25;
-
-      document.getElementById("calcTokens").innerText = totalTokens.toLocaleString();
-      document.getElementById("headerTokenCount").innerText = totalTokens.toLocaleString();
-      document.getElementById("calcCost").innerText = `~$${estimatedCost.toFixed(5)}`;
-      
-      const badge = document.getElementById("tokenBadge");
-      if (totalTokens > 150000) {
-        badge.className = "flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-400";
-      } else if (totalTokens > 80000) {
-        badge.className = "flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800 text-amber-400";
-      } else {
-        badge.className = "flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-emerald-400";
-      }
     }
 
     function setLoader(show, text = "") {
@@ -208,23 +191,30 @@
     function switchTab(tab) {
       const frame = document.getElementById("liveFrame");
       const code = document.getElementById("codeView");
+      const bp = document.getElementById("blueprintView");
       const tabP = document.getElementById("tabPreview");
       const tabC = document.getElementById("tabCode");
+      const tabB = document.getElementById("tabBlueprint");
+
+      frame.classList.add("hidden");
+      code.classList.add("hidden");
+      bp.classList.add("hidden");
+      tabP.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
+      tabC.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
+      tabB.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
 
       if (tab === 'preview') {
         frame.classList.remove("hidden");
-        code.classList.add("hidden");
         tabP.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
-        tabC.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
-      } else {
-        frame.classList.add("hidden");
+      } else if (tab === 'code') {
         code.classList.remove("hidden");
         tabC.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
-        tabP.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
+      } else if (tab === 'blueprint') {
+        bp.classList.remove("hidden");
+        tabB.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
       }
     }
 
-    // High performance client-side image compressor & token calculator
     function compressImage(file, maxWidth = 1024, quality = 0.7) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -247,7 +237,6 @@
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Vision Token calculation: tiles of 512x512 = ~1600 tokens max per compressed image
             const imgTokens = Math.ceil((width * height) / 750);
             resolve({ base64: canvas.toDataURL("image/jpeg", quality), tokens: imgTokens });
           };
@@ -275,7 +264,7 @@
         `;
         container.appendChild(thumb);
       }
-      updateTokenEstimate();
+      updateLiveTokenEstimate();
     }
 
     function removeImage(btn, base64, tokens) {
@@ -285,25 +274,103 @@
       if (uploadedImages.length === 0) {
         document.getElementById("imagePreviewContainer").classList.add("hidden");
       }
-      updateTokenEstimate();
+      updateLiveTokenEstimate();
     }
 
-    function clearBlueprint() {
-      document.getElementById("blueprintOutput").value = "";
-      document.getElementById("btnBuild").disabled = true;
-      updateTokenEstimate();
+    function updateLiveTokenEstimate() {
+      const prompt = document.getElementById("promptInput").value || "";
+      const bp = document.getElementById("blueprintView").value || "";
+      const textTokens = Math.ceil((prompt.length + bp.length) / 2.8);
+      const total = textTokens + imageTokensCount;
+      const cost = (total / 1000000) * 0.25;
+      document.getElementById("estimateBtnLabel").innerText = `~${total} توكن ($${cost.toFixed(4)})`;
     }
 
+    function estimateBuildTokens() {
+      const prompt = document.getElementById("promptInput").value || "";
+      const bp = document.getElementById("blueprintView").value || "";
+      const inputTokens = Math.ceil((prompt.length + bp.length) / 2.8) + imageTokensCount;
+      const expectedOutputTokens = 3500; // Average single-file store size
+      const totalTokens = inputTokens + expectedOutputTokens;
+      const cost = ((inputTokens * 0.25) + (expectedOutputTokens * 1.25)) / 1000000;
+
+      alert(`📊 تقدير الاستهلاك والتكلفة المتوقعة لبناء المتجر:\n` +
+            `• توكن المدخلات: ${inputTokens.toLocaleString()} توكن\n` +
+            `• توكن الشفرة المتوقعة: ~${expectedOutputTokens.toLocaleString()} توكن\n` +
+            `• إجمالي العملية: ~${totalTokens.toLocaleString()} توكن\n` +
+            `• التكلفة التقديرية الإجمالية: ~$${cost.toFixed(5)} (أقل من هللة واحدة)`);
+    }
+
+    function logMessage(title, message, isAi = true) {
+      const log = document.getElementById("analysisLog");
+      const entry = document.createElement("div");
+      entry.className = `p-2.5 rounded-lg border text-xs leading-relaxed ${isAi ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-amber-950/30 border-amber-800/40 text-amber-200'}`;
+      entry.innerHTML = `<div class="font-bold mb-1 text-[11px] text-amber-400">${title}</div><div>${message}</div>`;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // 1. Vision Analysis & Blueprint Generation
+    async function analyzeAndPlan() {
+      const apiKey = getApiKey();
+      const prompt = document.getElementById("promptInput").value.trim();
+
+      if (uploadedImages.length === 0) {
+        alert("يرجى اختيار صورة النموذج أو التصميم أولاً لقراءتها.");
+        return;
+      }
+
+      setLoader(true, "جارٍ فحص النموذج بصرياً واستخراج عناصر التصميم...");
+      document.getElementById("analysisStatus").innerText = "جارٍ التحليل البصري...";
+
+      try {
+        const res = await fetch("/api/consult", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
+          },
+          body: JSON.stringify({ 
+            prompt: prompt || "حلل هذا التصميم بدقة واستخرج الهيكل والأقسام ونظام الألوان.",
+            images: uploadedImages.map(i => i.base64)
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "فشل التحليل البصري");
+
+        currentBlueprint = data.blueprint;
+        document.getElementById("blueprintView").value = JSON.stringify(currentBlueprint, null, 2);
+        document.getElementById("btnBuild").disabled = false;
+
+        const summary = `تم استيعاب التصميم بنجاح:\n` +
+                        `• النمط: ${currentBlueprint.theme?.mode === 'dark' ? 'داكن (Dark Mode)' : 'فاتح (Light Mode)'}\n` +
+                        `• الأقسام المستخرجة: ${currentBlueprint.sections?.map(s => s.title || s.type).join('، ') || 'أقسام تجارية متكاملة'}\n` +
+                        `• الهوية: تم ضبط اتجاه RTL وتناسق الألوان في المخطط الهيكلي.`;
+        
+        logMessage("👁️ نتيجة التحليل البصري للنموذج", summary.replace(/\n/g, '<br>'));
+        document.getElementById("analysisStatus").innerText = "تم إعداد المخطط الهيكلي";
+        updateLiveTokenEstimate();
+      } catch (err) {
+        alert("خطأ: " + err.message);
+        document.getElementById("analysisStatus").innerText = "حدث خطأ";
+      } finally {
+        setLoader(false);
+      }
+    }
+
+    // 2. Text-Based Blueprint Generation
     async function generateBlueprint() {
       const prompt = document.getElementById("promptInput").value.trim();
       const apiKey = getApiKey();
 
       if (!prompt && uploadedImages.length === 0) {
-        alert("يرجى إدخال وصف المتجر أو إرفاق صور.");
+        alert("يرجى إدخال وصف المتجر أولاً.");
         return;
       }
 
-      setLoader(true, "جارٍ توليد المخطط الهيكلي (Blueprint)...");
+      setLoader(true, "جارٍ صياغة المخطط الهيكلي وتنسيق الأقسام...");
+      document.getElementById("analysisStatus").innerText = "جارٍ صياغة المخطط...";
 
       try {
         const res = await fetch("/api/plan", {
@@ -318,55 +385,29 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "فشل توليد المخطط");
 
-        document.getElementById("blueprintOutput").value = JSON.stringify(data.blueprint, null, 2);
+        currentBlueprint = data.blueprint;
+        document.getElementById("blueprintView").value = JSON.stringify(currentBlueprint, null, 2);
         document.getElementById("btnBuild").disabled = false;
-        updateTokenEstimate();
+
+        const summary = `تم اعتماد متطلبات المتجر بنجاح:\n` +
+                        `• النمط: ${currentBlueprint.theme?.mode || 'داكن'}\n` +
+                        `• عدد الأقسام الأساسية: ${currentBlueprint.sections?.length || 0} أقسام.\n` +
+                        `• يمكنك مراجعة الـ JSON من تبويب [المخطط الهيكلي] أو البدء بالتشييد الفوري.`;
+
+        logMessage("⚙️ اعتماد المخطط الهيكلي", summary.replace(/\n/g, '<br>'));
+        document.getElementById("analysisStatus").innerText = "المخطط جاهز للتشييد";
+        updateLiveTokenEstimate();
       } catch (err) {
         alert("خطأ: " + err.message);
+        document.getElementById("analysisStatus").innerText = "حدث خطأ";
       } finally {
         setLoader(false);
       }
     }
 
-    async function analyzeAndPlan() {
-      const apiKey = getApiKey();
-      const prompt = document.getElementById("promptInput").value.trim();
-
-      if (uploadedImages.length === 0) {
-        alert("يرجى اختيار صورة النموذج أو التصميم أولاً لقراءتها.");
-        return;
-      }
-
-      setLoader(true, "جارٍ فحص وتحليل الصورة بصرياً وصياغة تصميم مطابق...");
-
-      try {
-        const res = await fetch("/api/consult", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
-          },
-          body: JSON.stringify({ 
-            prompt: prompt || "قم بتحليل هذا النموذج بدقة واستخرج مخطط هيكلي JSON كامل يحاكي ألوانه وأقسامه.",
-            images: uploadedImages.map(i => i.base64)
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "فشل التحليل البصري");
-
-        document.getElementById("blueprintOutput").value = JSON.stringify(data.blueprint, null, 2);
-        document.getElementById("btnBuild").disabled = false;
-        updateTokenEstimate();
-      } catch (err) {
-        alert("خطأ في القراءة البصرية: " + err.message);
-      } finally {
-        setLoader(false);
-      }
-    }
-
+    // 3. Build Store
     async function buildStore() {
-      const blueprintText = document.getElementById("blueprintOutput").value.trim();
+      const blueprintText = document.getElementById("blueprintView").value.trim();
       const prompt = document.getElementById("promptInput").value.trim();
       const apiKey = getApiKey();
 
@@ -375,7 +416,8 @@
         return;
       }
 
-      setLoader(true, "جارٍ تشييد المتجر بالكامل...");
+      setLoader(true, "جارٍ برمجة وتشييد المتجر بالكامل عند الحافة...");
+      document.getElementById("analysisStatus").innerText = "جارٍ التشييد والبرمجة...";
 
       try {
         const res = await fetch("/api/chat", {
@@ -385,7 +427,7 @@
             ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
           },
           body: JSON.stringify({
-            prompt: prompt || "قم ببناء المتجر بناءً على المخطط المرفق",
+            prompt: prompt || "قم ببناء المتجر بناءً على المخطط المرفق مع الحفاظ على كافة معايير الجودة والخفة.",
             blueprint: JSON.parse(blueprintText),
             embeddedAssets: uploadedImages.map(i => i.base64)
           })
@@ -400,8 +442,12 @@
         const frame = document.getElementById("liveFrame");
         frame.srcdoc = currentHtmlCode;
         switchTab('preview');
+
+        logMessage("🚀 اكتمل تشييد المتجر", "تم بناء الكود بالكامل بنمط Zero-Bloat وهو يعمل الآن في المعاينة الحية.");
+        document.getElementById("analysisStatus").innerText = "تم النشر في المعاينة";
       } catch (err) {
         alert("خطأ التشييد: " + err.message);
+        document.getElementById("analysisStatus").innerText = "فشل التشييد";
       } finally {
         setLoader(false);
       }
