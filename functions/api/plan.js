@@ -8,7 +8,7 @@ export async function onRequestPost(context) {
     const apiKey = headerKey || env.OPENROUTER_API_KEY || env.PLANNER_API_KEY || env.BUILDER_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "مفتاح API غير متوفر. يرجى إدخاله في الحقل العلوي أو ضبطه في Cloudflare." }), {
+      return new Response(JSON.stringify({ error: "مفتاح API غير متوفر." }), {
         status: 401,
         headers: { "Content-Type": "application/json; charset=utf-8" }
       });
@@ -48,7 +48,7 @@ export async function onRequestPost(context) {
         "X-Title": "Edge Workbench"
       },
       body: JSON.stringify({
-        model: "anthropic/claude-3.5-haiku",
+        model: "anthropic/claude-3-haiku",
         messages: payloadMessages,
         temperature: 0.2
       })
