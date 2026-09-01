@@ -3,7 +3,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { prompt, blueprint, embeddedAssets = [] } = body;
+    const { prompt, blueprint = {}, embeddedAssets = [] } = body;
     const headerKey = request.headers.get("X-Custom-API-Key");
     const apiKey = headerKey || env.OPENROUTER_API_KEY || env.BUILDER_API_KEY || env.PLANNER_API_KEY;
 
@@ -14,19 +14,23 @@ export async function onRequestPost(context) {
       });
     }
 
-    const systemPrompt = `أنت مهندس معماري أول للبرمجيات وتصميم واجهات الويب (Senior Principal UI/UX & Web Architect).
-مهمتك: بناء وتشييد متجر إلكتروني فائق الفخامة والسرعة (Zero-Bloat) كملف HTML واحد مستقل تماماً (Single-File).
+    const systemPrompt = `أنت رئيس مهندسي المعمارية البرمجية وواجهات الويب (Lead Principal Web Architect).
+مهمتك: تشييد وبرمجة واجهة ويب فائقة الفخامة والأداء (Zero-Bloat) كملف HTML مستقل بالكامل (Single-File) متكيف بدقة مع النمط المعماري للمشروع (Dynamic Archetype).
 
-الضوابط الصارمة للإخراج:
-1. لا تكتب أي مقدمات أو شروحات أو خاتمة، ابدأ مباشرة بـ <!DOCTYPE html> واختم بـ </html>.
-2. استخدم مكتبة Tailwind CSS عبر CDN وخط Tajawal مع تفعيل dir="rtl" و lang="ar".
-3. أضف وسوم SEO دلالية كاملة (title, meta description, meta viewport, OpenGraph).
-4. برمج سلة مشتريات تفاعلية حية بلغة JavaScript خالصة (Pure JS) تشمل إضافة المنتجات، عداد السلة، ونافذة جانبية (Drawer) لعرض المنتجات وحساب الإجمالي.
-5. في حال توفر مصفوفة (embeddedAssets)، استخدم عناوينها الممررة داخل وسوم <img> للمنتجات أو الأقسام المناسبة، وإلا فاستخدم صوراً عالية الدقة ومباشرة متناسقة مع طبيعة المتجر.`;
+الضوابط الهندسية الصارمة:
+1. ابدأ الإخراج مباشرة بـ <!DOCTYPE html> واختم بـ </html> دون أي نصوص تمهيدية أو ماركداون.
+2. استخدم Tailwind CSS عبر CDN، مع ضبط dir="rtl" و lang="ar" وخط 'Tajawal'.
+3. التكيف الوظيفي التام مع نوع الواجهة الموضح في المخطط الهيكلي (site_type / archetype):
+   - إذا كانت 'ecommerce': برمج كتالوج المنتجات، وسلة مشتريات تفاعلية حية (Pure JS Drawer)، وحساب الإجمالي.
+   - إذا كانت 'dashboard': برمج مؤشرات KPI، ورسوم بيانية خفيفة باستخدام Pure SVG/CSS، وجداول بيانات تفاعلية.
+   - إذا كانت 'landing_page' أو 'saas_app': برمج أقسام التحويل، النماذج، وجداول المقارنة التفاعلية.
+4. حقن الأصول: إذا توفرت مصفوفة (embeddedAssets)، احقن روابط/بيانات الصور المرفوعة داخل وسوم <img> في الأقسام المخصصة لها بدقة.
+5. تأكد من أن جميع التفاعلات البرمجية مكتوبة بـ JavaScript خالص خالٍ من الأخطاء المتزامنة ومضمّنة داخل وسم <script>.`;
 
-    let userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم وتفاصيل المتجر:\n${prompt}`;
+    let userMessage = `المخطط الهيكلي المعتمد للتشييد:\n${JSON.stringify(blueprint, null, 2)}\n\nتوجيهات المستخدم الإضافية:\n${prompt || 'شيد الواجهة كاملة بأعلى معايير الجودة.'}`;
+    
     if (embeddedAssets && embeddedAssets.length > 0) {
-      userMessage += `\n\nأصول الصور المتوفرة للحقن المباشر:\n` + JSON.stringify(embeddedAssets);
+      userMessage += `\n\nأصول الصور الحقيقية المتوفرة للحقن المباشر في الواجهة:\n` + JSON.stringify(embeddedAssets);
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -35,7 +39,7 @@ export async function onRequestPost(context) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey.trim()}`,
         "HTTP-Referer": "https://edge-workbench.pages.dev",
-        "X-Title": "Edge Workbench"
+        "X-Title": "Edge Workbench - Universal Construction Engine"
       },
       body: JSON.stringify({
         model: "anthropic/claude-sonnet-5",
@@ -43,7 +47,7 @@ export async function onRequestPost(context) {
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
         ],
-        temperature: 0.2
+        temperature: 0.15
       })
     });
 
@@ -64,7 +68,7 @@ export async function onRequestPost(context) {
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: `خطأ تشييد الواجهة: ${err.message}` }), {
+    return new Response(JSON.stringify({ error: `خطأ أثناء تشييد الواجهة: ${err.message}` }), {
       status: 500,
       headers: { "Content-Type": "application/json; charset=utf-8" }
     });
