@@ -33,7 +33,7 @@ export async function onRequestPost(context) {
         "X-Title": "Edge Workbench"
       },
       body: JSON.stringify({
-        model: "anthropic/claude-3.5-sonnet",
+        model: "google/gemini-2.0-flash-001",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
