@@ -15,24 +15,18 @@ export async function onRequestPost(context) {
     }
 
     const systemPrompt = `أنت مهندس معماري أول للبرمجيات وتصميم واجهات الويب (Senior Principal UI/UX & Web Architect).
-مهمتك: تشييد متجر إلكتروني فائق الجودة، سريع جداً (Zero-Bloat)، ومتكامل التفاعل ضمن ملف HTML5 واحد مستقل تماماً.
+مهمتك: بناء وتشييد متجر إلكتروني فائق الفخامة والسرعة (Zero-Bloat) كملف HTML واحد مستقل تماماً (Single-File).
 
 الضوابط الصارمة للإخراج:
-1. الجودة والأداء: كود نظيف، خالٍ من الحشو والمكتبات الزائدة، معتمد على Tailwind CSS عبر CDN وخط Tajawal.
-2. اللغة والاتجاه: دعم كامل للغة العربية الفصحى مع تفعيل dir="rtl" و lang="ar".
-3. المعايير القياسية والـ SEO:
-   - إضافة وسوم <title>, <meta name="description">, <meta name="viewport">, ووسوم OpenGraph للمتجر.
-   - استخدام عناصر HTML دلالية (header, nav, main, section, article, footer).
-4. التفاعلية البرمجية (Pure JavaScript):
-   - نظام سلة مشتريات متكامل (إضافة، تعديل كمية، حذف، حساب إجمالي فوري، ونافذة منبثقة أو شريط جانبي للسلة Drawer).
-   - تجاوب مثالي مع نقرات اللمس للأجهزة اللوحية والهواتف.
-5. الأصول والصور:
-   - استخدام صور أصول متناسقة وواقعية وعالية الجودة متوافقة مع طبيعة المتجر، مع تضمين سمة alt بدقة لكافة الصور.
-6. صيغة الإخراج: أرجع الكود البرمجي الصافي فقط بدءاً من <!DOCTYPE html> إلى </html> دون أي نصوص أو مقدمات أو علامات ماركداون.`;
+1. لا تكتب أي مقدمات أو شروحات أو خاتمة، ابدأ مباشرة بـ <!DOCTYPE html> واختم بـ </html>.
+2. استخدم مكتبة Tailwind CSS عبر CDN وخط Tajawal مع تفعيل dir="rtl" و lang="ar".
+3. أضف وسوم SEO دلالية كاملة (title, meta description, meta viewport, OpenGraph).
+4. برمج سلة مشتريات تفاعلية حية بلغة JavaScript خالصة (Pure JS) تشمل إضافة المنتجات، عداد السلة، ونافذة جانبية (Drawer) لعرض المنتجات وحساب الإجمالي.
+5. في حال توفر مصفوفة (embeddedAssets)، استخدم عناوينها الممررة داخل وسوم <img> للمنتجات أو الأقسام المناسبة، وإلا فاستخدم صوراً عالية الدقة ومباشرة متناسقة مع طبيعة المتجر.`;
 
-    let userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم التفصيلي:\n${prompt}`;
+    let userMessage = `المخطط الهيكلي المعتمد:\n${JSON.stringify(blueprint, null, 2)}\n\nطلب المستخدم وتفاصيل المتجر:\n${prompt}`;
     if (embeddedAssets && embeddedAssets.length > 0) {
-      userMessage += `\n\nأصول الصور المتوفرة للاستخدام:\n` + JSON.stringify(embeddedAssets);
+      userMessage += `\n\nأصول الصور المتوفرة للحقن المباشر:\n` + JSON.stringify(embeddedAssets);
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -44,12 +38,12 @@ export async function onRequestPost(context) {
         "X-Title": "Edge Workbench"
       },
       body: JSON.stringify({
-        model: "anthropic/claude-3-haiku",
+        model: "anthropic/claude-sonnet-5",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
         ],
-        temperature: 0.25
+        temperature: 0.2
       })
     });
 
