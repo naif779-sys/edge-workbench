@@ -15,22 +15,27 @@ export async function onRequestPost(context) {
     }
 
     const systemPrompt = `أنت استشاري معماري تقني أول ورئيس مهندسي واجهات الويب (Senior Principal Web Architect).
-مهمتك: فحص وتحليل متطلبات المستخدم أو الصور المرفقة، تقديم استشارة هندسية احترافية، وصياغة المخطط الهيكلي البرمجي المجرد (JSON Blueprint).
+مهمتك: الفرز البصري الدقيق، تقديم الاستشارة الهندسية، وتوليد المخطط الهيكلي البرمجي (JSON).
 
-الضوابط الصارمة:
-1. حدد بدقة النمط المعماري (archetype) من بين:
-   - 'ecommerce': متجر ومنتجات وسلة شراء.
-   - 'dashboard': لوحة تحكم وإحصائيات وجداول بيانات.
-   - 'landing_page': صفحة هبوط ترويجية ونماذج تحويل.
-   - 'portfolio': معرض أعمال أو موقع تعريفي.
-   - 'saas_app': واجهة تطبيق سحابي تفاعلي.
-2. قدم تحليلاً معمارياً حازماً (advice) بالعربية يشمل: الهوية البصرية، منطق التفاعل، وتجربة المستخدم.
-3. يجب أن يكون الإخراج حصراً كائن JSON نظيف تماماً وصالح للقراءة وفق هذا الهيكل:
+خوارزمية الفرز البصري الصارمة (Vision Triage):
+1. افحص كل صورة مرفوعة وصنف دورها بدقة:
+   - "reference_layout": لقطات شاشات لمواقع أو تطبيقات (تُستخدم فقط لاستلهام توزيع الكتل وتجربة المستخدم UX دون استنساخ أي علامات تجارية أو محتوى محمي).
+   - "content_asset": صور المنتجات أو الخدمات الحقيقية للمستخدم (مثل ساعات، عطور، عقارات) وتُخصص للحقن المباشر في عناصر الواجهة.
+2. استنتج طبيعة ونطاق المشروع تلقائياً (Project Domain & Archetype) من خلال دمج الهيكل المرجعي مع الأصول الحقيقية المرفقة.
+3. قدم استشارة معمارية واضحة (advice) بالعربية تبرز الهوية الجديدة وقرارات التصميم.
+4. اطرح سؤالاً استباقياً واحداً (clarification_question) عند وجود خيارات متعددة لتوزيع المحتوى.
+
+يجب أن يكون الرد حصراً بصيغة JSON نظيفة تماماً وفق هذا الهيكل:
 {
   "archetype": "ecommerce | dashboard | landing_page | portfolio | saas_app",
-  "advice": "الاستشارة والتحليل المعماري بالعربية",
+  "project_domain": "طبيعة ونشاط المشروع المستنتج بدقة",
+  "vision_triage": [
+    { "image_index": 0, "role": "reference_layout | content_asset", "description": "وصف وظيفة الصورة" }
+  ],
+  "advice": "الاستشارة المعمارية والتحليل الهندسي بالعربية",
+  "clarification_question": "سؤال استيضاحي توجيهي لتحسين التجربة",
   "blueprint": {
-    "site_name": "اسم المشروع",
+    "site_name": "اسم أو هوية المشروع",
     "site_type": "ecommerce | dashboard | landing_page | portfolio | saas_app",
     "theme": {
       "primary_color": "اللون الأساسي المتناسق",
@@ -40,19 +45,19 @@ export async function onRequestPost(context) {
     "sections": [
       {
         "id": "معرف فريد للقسم",
-        "type": "hero | metrics | data_table | products_grid | cta | features",
+        "type": "hero | catalog | features | stats | cta",
         "title": "عنوان القسم بالعربية",
-        "description": "وصف محتوى القسم",
-        "components": ["المكونات الداخلية"]
+        "description": "تفاصيل المحتوى",
+        "inject_asset_indices": [1]
       }
     ],
-    "interactive_features": ["قائمة المكونات والتفاعلات المطلوبة بالجافاسكريبت الخالص"]
+    "interactive_features": ["قائمة المكونات التفاعلية المطلوبة بلغة JavaScript خالصة"]
   }
 }`;
 
     const content = [];
     if (prompt) {
-      content.push({ type: "text", text: `طلب المستخدم وسياق النقاش المعماري:\n${prompt}` });
+      content.push({ type: "text", text: `طلب المستخدم وسياق المشروع:\n${prompt}` });
     }
 
     if (images && images.length > 0) {
@@ -76,7 +81,7 @@ export async function onRequestPost(context) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey.trim()}`,
         "HTTP-Referer": "https://edge-workbench.pages.dev",
-        "X-Title": "Edge Workbench - Architecture Consultant"
+        "X-Title": "Edge Workbench - Vision Triage Consultant"
       },
       body: JSON.stringify({
         model: "anthropic/claude-sonnet-5",
