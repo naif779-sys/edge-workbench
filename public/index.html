@@ -28,21 +28,23 @@
       </div>
     </div>
 
-    <!-- API Key Input -->
-    <div class="flex items-center gap-2">
+    <!-- API Key & Global Token Badge -->
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-xs">
+        <span class="text-slate-400">التوكن التقديري:</span>
+        <span id="headerTokenCount" class="font-mono font-bold text-amber-400">0</span>
+      </div>
+
       <input type="password" id="customApiKey" placeholder="مفتاح OpenRouter (يُحفظ تلقائياً)" 
              onchange="saveApiKey(this.value)"
-             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-48 md:w-64 transition">
-      <span id="statusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> جاهز
-      </span>
+             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-44 md:w-60 transition">
     </div>
   </header>
 
   <!-- Main Workspace -->
   <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1800px] w-full mx-auto">
     
-    <!-- Control & Blueprint Panel -->
+    <!-- Control Panel -->
     <section class="lg:col-span-5 flex flex-col gap-4">
       
       <!-- Prompt & Image Controls Box -->
@@ -51,10 +53,17 @@
           <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
             <span>📝</span> متطلبات المتجر والتصميم
           </label>
-          <span class="text-[11px] text-slate-400">يدعم ضغط الصور التلقائي</span>
+          <!-- Token Meter Badge -->
+          <div id="tokenBadge" class="flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-emerald-400">
+            <span>⚡</span>
+            <span id="calcTokens">0</span> توكن
+            <span class="text-slate-500">|</span>
+            <span id="calcCost" class="text-slate-400">~$0.0000</span>
+          </div>
         </div>
 
         <textarea id="promptInput" rows="3" 
+                  oninput="updateTokenEstimate()"
                   placeholder="اكتب وصف المتجر هنا أو ارفع صوراً لتضمينها أو تحليلها..."
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 custom-scroll resize-none"></textarea>
         
@@ -62,7 +71,7 @@
         <div class="border border-dashed border-slate-800 rounded-lg p-3 bg-slate-950/50 flex flex-col gap-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-              <span>🖼️</span> إرفاق الصور
+              <span>🖼️</span> إرفاق الصور (ضغط فوري)
             </span>
             <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2.5 py-1 rounded border border-slate-700 transition">
               اختيار ملفات
@@ -98,6 +107,7 @@
         </div>
         
         <textarea id="blueprintOutput" 
+                  oninput="updateTokenEstimate()"
                   placeholder="سيظهر المخطط الهيكلي هنا بصيغة JSON..." 
                   class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono text-emerald-400 placeholder-slate-600 focus:outline-none focus:border-emerald-500 custom-scroll resize-none"></textarea>
         
@@ -139,10 +149,12 @@
   <script>
     let currentHtmlCode = "";
     let uploadedImages = [];
+    let imageTokensCount = 0;
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedKey = localStorage.getItem("EDGE_WORKBENCH_API_KEY");
       if (savedKey) document.getElementById("customApiKey").value = savedKey;
+      updateTokenEstimate();
     });
 
     function saveApiKey(key) {
@@ -152,6 +164,34 @@
 
     function getApiKey() {
       return document.getElementById("customApiKey").value.trim() || localStorage.getItem("EDGE_WORKBENCH_API_KEY") || "";
+    }
+
+    // Token & Cost Estimator
+    function updateTokenEstimate() {
+      const prompt = document.getElementById("promptInput").value || "";
+      const blueprint = document.getElementById("blueprintOutput").value || "";
+      
+      // Arabic/English Token heuristic: ~1 token per 2.5 Arabic chars, ~4 chars English
+      const textChars = prompt.length + blueprint.length;
+      const textTokens = Math.ceil(textChars / 2.8);
+      
+      const totalTokens = textTokens + imageTokensCount;
+      
+      // Pricing heuristic for Claude 3 Haiku ($0.25 per 1M input tokens)
+      const estimatedCost = (totalTokens / 1000000) * 0.25;
+
+      document.getElementById("calcTokens").innerText = totalTokens.toLocaleString();
+      document.getElementById("headerTokenCount").innerText = totalTokens.toLocaleString();
+      document.getElementById("calcCost").innerText = `~$${estimatedCost.toFixed(5)}`;
+      
+      const badge = document.getElementById("tokenBadge");
+      if (totalTokens > 150000) {
+        badge.className = "flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-400";
+      } else if (totalTokens > 80000) {
+        badge.className = "flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800 text-amber-400";
+      } else {
+        badge.className = "flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-emerald-400";
+      }
     }
 
     function setLoader(show, text = "") {
@@ -184,7 +224,7 @@
       }
     }
 
-    // High performance client-side image compressor
+    // High performance client-side image compressor & token calculator
     function compressImage(file, maxWidth = 1024, quality = 0.7) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -206,7 +246,10 @@
             canvas.height = height;
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL("image/jpeg", quality));
+
+            // Vision Token calculation: tiles of 512x512 = ~1600 tokens max per compressed image
+            const imgTokens = Math.ceil((width * height) / 750);
+            resolve({ base64: canvas.toDataURL("image/jpeg", quality), tokens: imgTokens });
           };
         };
       });
@@ -220,30 +263,35 @@
       container.classList.remove("hidden");
 
       for (let file of Array.from(files)) {
-        const compressedBase64 = await compressImage(file, 1024, 0.7);
-        uploadedImages.push(compressedBase64);
+        const result = await compressImage(file, 1024, 0.7);
+        uploadedImages.push({ base64: result.base64, tokens: result.tokens });
+        imageTokensCount += result.tokens;
 
         const thumb = document.createElement("div");
         thumb.className = "relative w-14 h-14 rounded-lg overflow-hidden border border-slate-700 shrink-0";
         thumb.innerHTML = `
-          <img src="${compressedBase64}" class="w-full h-full object-cover">
-          <button onclick="removeImage(this, '${compressedBase64}')" class="absolute top-0.5 right-0.5 bg-rose-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] leading-none">×</button>
+          <img src="${result.base64}" class="w-full h-full object-cover">
+          <button onclick="removeImage(this, '${result.base64}', ${result.tokens})" class="absolute top-0.5 right-0.5 bg-rose-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] leading-none">×</button>
         `;
         container.appendChild(thumb);
       }
+      updateTokenEstimate();
     }
 
-    function removeImage(btn, base64) {
+    function removeImage(btn, base64, tokens) {
       btn.parentElement.remove();
-      uploadedImages = uploadedImages.filter(img => img !== base64);
+      uploadedImages = uploadedImages.filter(img => img.base64 !== base64);
+      imageTokensCount = Math.max(0, imageTokensCount - tokens);
       if (uploadedImages.length === 0) {
         document.getElementById("imagePreviewContainer").classList.add("hidden");
       }
+      updateTokenEstimate();
     }
 
     function clearBlueprint() {
       document.getElementById("blueprintOutput").value = "";
       document.getElementById("btnBuild").disabled = true;
+      updateTokenEstimate();
     }
 
     async function generateBlueprint() {
@@ -272,6 +320,7 @@
 
         document.getElementById("blueprintOutput").value = JSON.stringify(data.blueprint, null, 2);
         document.getElementById("btnBuild").disabled = false;
+        updateTokenEstimate();
       } catch (err) {
         alert("خطأ: " + err.message);
       } finally {
@@ -299,7 +348,7 @@
           },
           body: JSON.stringify({ 
             prompt: prompt || "قم بتحليل هذا النموذج بدقة واستخرج مخطط هيكلي JSON كامل يحاكي ألوانه وأقسامه.",
-            images: uploadedImages
+            images: uploadedImages.map(i => i.base64)
           })
         });
 
@@ -308,6 +357,7 @@
 
         document.getElementById("blueprintOutput").value = JSON.stringify(data.blueprint, null, 2);
         document.getElementById("btnBuild").disabled = false;
+        updateTokenEstimate();
       } catch (err) {
         alert("خطأ في القراءة البصرية: " + err.message);
       } finally {
@@ -336,7 +386,8 @@
           },
           body: JSON.stringify({
             prompt: prompt || "قم ببناء المتجر بناءً على المخطط المرفق",
-            blueprint: JSON.parse(blueprintText)
+            blueprint: JSON.parse(blueprintText),
+            embeddedAssets: uploadedImages.map(i => i.base64)
           })
         });
 
