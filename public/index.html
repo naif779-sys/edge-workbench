@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منصة Edge Workbench | تشييد المتاجر عند الحافة</title>
+  <title>Edge Workbench | منصة التشييد والاستشارة المعمارية</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,128 +11,140 @@
   <style>
     body { font-family: 'Tajawal', sans-serif; }
     .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    button, input, textarea { touch-action: manipulation; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+      <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xl shadow-inner">
         ⚡
       </div>
       <div>
-        <h1 class="text-base font-bold text-white leading-none">Edge Workbench</h1>
-        <p class="text-xs text-slate-400 mt-0.5">محرك بناء المتاجر الفوري عند الحافة</p>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">Edge Workbench</h1>
+          <span id="archetypeBadge" class="hidden px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30"></span>
+        </div>
+        <p class="text-xs text-slate-400 mt-0.5">محرك التشييد والاستشارة المعمارية عند الحافة</p>
       </div>
     </div>
 
+    <!-- API Key & Status -->
     <div class="flex items-center gap-2">
-      <input type="password" id="customApiKey" placeholder="مفتاح OpenRouter (يُحفظ تلقائياً)" 
+      <input type="password" id="customApiKey" placeholder="مفتاح OpenRouter (اختياري)" 
              onchange="saveApiKey(this.value)"
-             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-48 md:w-64 transition">
-      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> جاهز
+             class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500 w-44 md:w-60 transition">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> نشط
       </span>
     </div>
   </header>
 
+  <!-- Main Grid Workspace -->
   <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1800px] w-full mx-auto">
     
+    <!-- Left Workspace Panel (Discussion & Analysis) -->
     <section class="lg:col-span-5 flex flex-col gap-4">
       
+      <!-- Input Box -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
         <div class="flex items-center justify-between">
-          <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <span>💬</span> متطلبات المتجر والمحادثة التكرارية
+          <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+            <span>💬</span> متطلبات المشروع والحوار الاستشاري
           </label>
-          <span class="text-[11px] text-slate-400">كتابة الوصف أو طلب التعديل</span>
+          <span class="text-[11px] text-slate-400">تحليل المراجع والأصول</span>
         </div>
 
         <textarea id="promptInput" rows="3" 
                   oninput="updateLiveTokenEstimate()"
-                  placeholder="اكتب وصف المتجر، أو اطلب تعديلاً (مثال: اجعل الأزرار دائرية، غيّر الخط، أضف قسماً للتقييمات)..."
-                  class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 custom-scroll resize-none"></textarea>
+                  placeholder="صف مشروعك، أو ارفع صوراً استرشادية وأصولاً للفرز والاستشارة المعمارية..."
+                  class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 custom-scroll resize-none leading-relaxed"></textarea>
         
         <input type="file" id="imageInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
 
-        <div class="grid grid-cols-3 gap-2 pt-1">
-          <button id="btnReadImage" onclick="analyzeAndPlan()" 
-                  class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold py-2 px-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
-            <span>👁️</span> قراءة وتحليل
+        <!-- Action Bar (Tablet-Optimized Touch Target >= 44px) -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="document.getElementById('imageInput').click()" 
+                  class="min-h-[44px] bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 font-bold py-2 px-3 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1.5">
+            <span>🖼️</span> إرفاق الصور والمراجع
           </button>
 
-          <button onclick="document.getElementById('imageInput').click()" 
-                  class="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 font-bold py-2 px-2 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1">
-            <span>🖼️</span> رفع الصور مباشرة
-          </button>
-          
-          <button id="btnPlan" onclick="generateBlueprint()" 
-                  class="bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-bold py-2 px-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
-            <span>⚙️</span> توليد المخطط
+          <button id="btnConsult" onclick="consultAndAnalyze()" 
+                  class="min-h-[44px] bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+            <span>👁️</span> استشارة وفرز بصري
           </button>
         </div>
 
-        <div id="imagePreviewContainer" class="flex gap-2 overflow-x-auto py-1 custom-scroll hidden border-t border-slate-800/80 pt-2"></div>
+        <!-- Thumbnails Container -->
+        <div id="imagePreviewContainer" class="flex gap-2 overflow-x-auto py-1 custom-scroll hidden border-t border-slate-800 pt-2"></div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex-1 flex flex-col gap-3 min-h-[280px] shadow-sm">
+      <!-- Architectural Log & QA Screen -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex-1 flex flex-col gap-3 min-h-[340px] shadow-sm">
         <div class="flex items-center justify-between">
-          <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <span>🧠</span> شاشة الاستيعاب وفحص الجودة
+          <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+            <span>🧠</span> شاشة الاستيعاب والاستشارة المعمارية
           </label>
           <span id="analysisStatus" class="text-xs text-slate-400">بانتظار المدخلات...</span>
         </div>
         
         <div id="analysisLog" 
-             class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-300 custom-scroll overflow-y-auto leading-relaxed space-y-2 font-sans">
-          <p class="text-slate-500 italic">ستظهر هنا تفاصيل التحليل ونتائج فحص الكود والاختبار المباشر...</p>
+             class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-300 custom-scroll overflow-y-auto leading-relaxed space-y-2.5 font-sans">
+          <p class="text-slate-500 italic">ستظهر هنا تفاصيل الفرز البصري، تحليل الهيكل المرجعي، واستشارة المستشار المعماري...</p>
         </div>
         
+        <!-- Bottom Action Bar (Token Estimate & Construction) -->
         <div class="grid grid-cols-12 gap-2 pt-1">
           <button id="btnEstimate" onclick="estimateBuildTokens()" 
-                  class="col-span-5 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 px-2 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1.5">
-            <span>📊</span> <span id="estimateBtnLabel">تقدير التوكن</span>
+                  class="col-span-5 min-h-[44px] bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2 px-2 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1">
+            <span>📊</span> <span id="estimateBtnLabel">~0 توكن</span>
           </button>
 
-          <button id="btnBuild" onclick="buildStore()" disabled
-                  class="col-span-7 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
-            <span>🚀</span> تشييد وبرمجة المتجر
+          <button id="btnBuild" onclick="buildProject()" disabled
+                  class="col-span-7 min-h-[44px] bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+            <span>🚀</span> تشييد الواجهة المعمارية
           </button>
         </div>
       </div>
     </section>
 
+    <!-- Right Workspace Panel (Preview & Source Code) -->
     <section class="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
       
+      <!-- Toolbar -->
       <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
         <div class="flex items-center gap-1.5">
-          <button id="tabPreview" onclick="switchTab('preview')" class="px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white">معاينة حية</button>
-          <button id="tabCode" onclick="switchTab('code')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white">الكود المصدري</button>
-          <button id="tabBlueprint" onclick="switchTab('blueprint')" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white">📐 المخطط الهيكلي</button>
+          <button id="tabPreview" onclick="switchTab('preview')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white">معاينة حية</button>
+          <button id="tabCode" onclick="switchTab('code')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">الكود المصدري</button>
+          <button id="tabBlueprint" onclick="switchTab('blueprint')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">📐 المخطط الهيكلي (JSON)</button>
         </div>
         
         <div class="flex items-center gap-2">
-          <button onclick="downloadCode()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded border border-slate-700 transition flex items-center gap-1">
+          <button onclick="downloadCode()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1">
             📥 تحميل HTML
           </button>
         </div>
       </div>
 
-      <div class="flex-1 relative bg-slate-950 flex flex-col min-h-[480px]">
+      <!-- View Area -->
+      <div class="flex-1 relative bg-slate-950 flex flex-col min-h-[500px]">
         <iframe id="liveFrame" class="w-full h-full flex-1 border-none bg-white"></iframe>
         
         <textarea id="codeView" readonly 
                   class="hidden w-full h-full flex-1 bg-slate-950 text-emerald-400 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"
-                  placeholder="سيظهر الكود المصدري هنا فور اكتمال التشييد..."></textarea>
+                  placeholder="سيظهر الكود المصدري الخفيف هنا بعد التشييد..."></textarea>
 
         <textarea id="blueprintView" 
                   oninput="updateLiveTokenEstimate()"
                   class="hidden w-full h-full flex-1 bg-slate-950 text-amber-400 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"
-                  placeholder="سيظهر كائن JSON الخاص بالمخطط الهيكلي هنا ويمكنك تعديله..."></textarea>
+                  placeholder="كائن المخطط الهيكلي البرمجي (JSON Blueprint)..."></textarea>
 
-        <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-20">
-          <div class="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-20">
+          <div class="w-9 h-9 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
           <p id="loadingText" class="text-sm font-medium text-slate-300">جارٍ المعالجة...</p>
         </div>
       </div>
@@ -144,6 +156,7 @@
     let currentBlueprint = null;
     let uploadedImages = [];
     let imageTokensCount = 0;
+    let conversationHistory = [];
     let lastDetectedError = null;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -183,19 +196,19 @@
       frame.classList.add("hidden");
       code.classList.add("hidden");
       bp.classList.add("hidden");
-      tabP.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
-      tabC.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
-      tabB.className = "px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white";
+      tabP.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white";
+      tabC.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white";
+      tabB.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white";
 
       if (tab === 'preview') {
         frame.classList.remove("hidden");
-        tabP.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
+        tabP.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white";
       } else if (tab === 'code') {
         code.classList.remove("hidden");
-        tabC.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
+        tabC.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white";
       } else if (tab === 'blueprint') {
         bp.classList.remove("hidden");
-        tabB.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white";
+        tabB.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white";
       }
     }
 
@@ -266,7 +279,7 @@
       const bp = document.getElementById("blueprintView").value || "";
       const textTokens = Math.ceil((prompt.length + bp.length) / 2.8);
       const total = textTokens + imageTokensCount;
-      const cost = (total / 1000000) * 0.25;
+      const cost = (total / 1000000) * 2.0;
       document.getElementById("estimateBtnLabel").innerText = `~${total} توكن ($${cost.toFixed(4)})`;
     }
 
@@ -285,10 +298,10 @@
             `• التكلفة التقديرية الإجمالية: ~$${cost.toFixed(4)}`);
     }
 
-    function logMessage(title, message, type = "normal") {
+    function logMessage(title, contentHtml, type = "normal") {
       const log = document.getElementById("analysisLog");
       const entry = document.createElement("div");
-      let borderClass = "bg-slate-900 border-slate-800 text-slate-200";
+      let borderClass = "bg-slate-900/90 border-slate-800 text-slate-200";
       let titleClass = "text-amber-400";
 
       if (type === "success") {
@@ -299,33 +312,22 @@
         titleClass = "text-rose-400";
       }
 
-      entry.className = `p-2.5 rounded-lg border text-xs leading-relaxed ${borderClass}`;
-      entry.innerHTML = `<div class="font-bold mb-1 text-[11px] ${titleClass}">${title}</div><div>${message}</div>`;
+      entry.className = `p-3 rounded-lg border text-xs leading-relaxed ${borderClass}`;
+      entry.innerHTML = `<div class="font-bold mb-1.5 text-[11px] ${titleClass}">${title}</div><div>${contentHtml}</div>`;
       log.appendChild(entry);
       log.scrollTop = log.scrollHeight;
     }
 
-    // --- Quality Gate & Linter Engine ---
+    // --- Quality Gate Linter ---
     function runQualityGate(htmlCode) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlCode, "text/html");
       const checks = [];
 
-      // 1. RTL & Language
-      const isRTL = doc.documentElement.getAttribute("dir") === "rtl";
-      checks.push({ label: "دعم العربية والاتجاه (RTL)", pass: isRTL });
-
-      // 2. Responsive Meta
-      const hasViewport = !!doc.querySelector("meta[name='viewport']");
-      checks.push({ label: "التجاوب مع الشاشات (Viewport)", pass: hasViewport });
-
-      // 3. Tailwind CSS
-      const hasTailwind = Array.from(doc.scripts).some(s => s.src && s.src.includes("tailwindcss"));
-      checks.push({ label: "تنسيق Tailwind CSS", pass: hasTailwind });
-
-      // 4. Cart Logic
-      const hasCart = htmlCode.includes("cart") || htmlCode.includes("سلة");
-      checks.push({ label: "منطق السلة التفاعلية", pass: hasCart });
+      checks.push({ label: "الاتجاه العربي واللغة (dir='rtl')", pass: doc.documentElement.getAttribute("dir") === "rtl" });
+      checks.push({ label: "التجاوب مع الشاشات (Viewport)", pass: !!doc.querySelector("meta[name='viewport']") });
+      checks.push({ label: "مكتبة Tailwind CSS", pass: Array.from(doc.scripts).some(s => s.src && s.src.includes("tailwindcss")) });
+      checks.push({ label: "تكامل التفاعلات ومنطق الواجهة", pass: htmlCode.includes("<script") && htmlCode.includes("addEventListener") });
 
       const allPassed = checks.every(c => c.pass);
       let reportHtml = `<div class="space-y-1 my-1">` + 
@@ -333,24 +335,18 @@
         `</div>`;
 
       if (allPassed) {
-        logMessage("🛡️ تقرير فحص الجودة (Quality Gate)", reportHtml + `<div class="text-emerald-400 font-bold mt-1">اجتاز الكود جميع معايير البناء بنجاح 100%.</div>`, "success");
+        logMessage("🛡️ تقرير فحص الجودة (Quality Gate)", reportHtml + `<div class="text-emerald-400 font-bold mt-1">اجتاز الكود كافة معايير البناء القياسية.</div>`, "success");
       } else {
-        logMessage("⚠️ تنبيه فحص الجودة", reportHtml, "normal");
+        logMessage("⚠️ تنبيه الجودة", reportHtml, "normal");
       }
-
       return allPassed;
     }
 
-    // --- Runtime Error Sniffer Injection ---
     function injectRuntimeSniffer(htmlCode) {
       const snifferScript = `
         <script>
-          window.onerror = function(msg, url, lineNo, columnNo, error) {
-            window.parent.postMessage({
-              type: 'RUNTIME_ERROR',
-              message: msg,
-              line: lineNo
-            }, '*');
+          window.onerror = function(msg, url, lineNo, colNo, error) {
+            window.parent.postMessage({ type: 'RUNTIME_ERROR', message: msg, line: lineNo }, '*');
             return false;
           };
         <\/script>
@@ -358,12 +354,11 @@
       return htmlCode.replace("<head>", "<head>" + snifferScript);
     }
 
-    // Listen to iframe errors
     window.addEventListener("message", (event) => {
       if (event.data && event.data.type === "RUNTIME_ERROR") {
         lastDetectedError = event.data.message;
-        const fixBtn = `<button onclick="triggerAutoFix()" class="mt-2 bg-rose-600 hover:bg-rose-500 text-white font-bold py-1 px-2.5 rounded text-[11px] transition flex items-center gap-1">🔧 إصلاح الخلل الذاتي فوراً</button>`;
-        logMessage("🚨 خطأ تشغيلي في المعاينة", `حدث خطأ أثناء تشغيل الجافاسكريبت:<br><code class="text-rose-300 font-mono">${event.data.message} (السطر: ${event.data.line})</code>${fixBtn}`, "error");
+        const fixBtn = `<button onclick="triggerAutoFix()" class="mt-2 bg-rose-600 hover:bg-rose-500 text-white font-bold py-1 px-3 rounded text-[11px] transition">🔧 إصلاح الخلل الذاتي فوراً</button>`;
+        logMessage("🚨 خطأ تشغيلي في المعاينة", `حدث استثناء أثناء التشغيل:<br><code class="text-rose-300 font-mono">${event.data.message} (السطر: ${event.data.line})</code>${fixBtn}`, "error");
       }
     });
 
@@ -379,10 +374,7 @@
             "Content-Type": "application/json",
             ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
           },
-          body: JSON.stringify({
-            code: currentHtmlCode,
-            error: lastDetectedError
-          })
+          body: JSON.stringify({ code: currentHtmlCode, error: lastDetectedError })
         });
 
         const data = await res.json();
@@ -390,32 +382,30 @@
 
         currentHtmlCode = data.code;
         document.getElementById("codeView").value = currentHtmlCode;
-        
-        const frame = document.getElementById("liveFrame");
-        frame.srcdoc = injectRuntimeSniffer(currentHtmlCode);
+        document.getElementById("liveFrame").srcdoc = injectRuntimeSniffer(currentHtmlCode);
         runQualityGate(currentHtmlCode);
 
-        logMessage("✨ تم الإصلاح الذاتي بنجاح", "تمت معالجة الخطأ وتحديث المعاينة الحية فوراً.", "success");
+        logMessage("✨ تم الإصلاح الذاتي بنجاح", "تمت معالجة الخلل وتحديث نافذة المعاينة الحية فوراً.", "success");
         lastDetectedError = null;
       } catch (err) {
-        alert("خطأ في الإصلاح الذاتي: " + err.message);
+        alert("خطأ الإصلاح الذاتي: " + err.message);
       } finally {
         setLoader(false);
       }
     }
 
-    // 1. Vision Analysis
-    async function analyzeAndPlan() {
+    // --- Vision Triage & Consultation ---
+    async function consultAndAnalyze() {
       const apiKey = getApiKey();
       const prompt = document.getElementById("promptInput").value.trim();
 
-      if (uploadedImages.length === 0) {
-        alert("يرجى اختيار صورة النموذج أو التصميم أولاً لقراءتها.");
+      if (!prompt && uploadedImages.length === 0) {
+        alert("يرجى إدخال وصف للمشروع أو رفع صور المراجع والأصول.");
         return;
       }
 
-      setLoader(true, "جارٍ فحص النموذج بصرياً واستخراج عناصر التصميم...");
-      document.getElementById("analysisStatus").innerText = "جارٍ التحليل البصري...";
+      setLoader(true, "جارٍ الفرز البصري والاستشارة المعمارية...");
+      document.getElementById("analysisStatus").innerText = "جارٍ التحليل الاستشاري...";
 
       try {
         const res = await fetch("/api/consult", {
@@ -425,72 +415,48 @@
             ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
           },
           body: JSON.stringify({ 
-            prompt: prompt || "حلل هذا التصميم بدقة واستخرج الهيكل والأقسام ونظام الألوان.",
-            images: uploadedImages.map(i => i.base64)
+            prompt: prompt || "قم بفرز المراجع والأصول المرفقة وتقديم استشارة معمارية لصياغة المخطط الهيكلي.",
+            images: uploadedImages.map(i => i.base64),
+            history: conversationHistory
           })
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "فشل التحليل البصري");
+        if (!res.ok) throw new Error(data.error || "فشل تحليل المستشار المعماري");
 
         currentBlueprint = data.blueprint;
         document.getElementById("blueprintView").value = JSON.stringify(currentBlueprint, null, 2);
         document.getElementById("btnBuild").disabled = false;
 
-        const summary = `تم استيعاب التصميم بنجاح:\n` +
-                        `• النمط: ${currentBlueprint.theme?.mode === 'dark' ? 'داكن (Dark Mode)' : 'فاتح (Light Mode)'}\n` +
-                        `• الأقسام المستخرجة: ${currentBlueprint.sections?.map(s => s.title || s.type).join('، ') || 'أقسام تجارية متكاملة'}\n` +
-                        `• الهوية: تم ضبط اتجاه RTL وتناسق الألوان في المخطط الهيكلي.`;
-        
-        logMessage("👁️ نتيجة التحليل البصري للنموذج", summary.replace(/\n/g, '<br>'));
-        document.getElementById("analysisStatus").innerText = "تم إعداد المخطط الهيكلي";
-        updateLiveTokenEstimate();
-      } catch (err) {
-        alert("خطأ: " + err.message);
-        document.getElementById("analysisStatus").innerText = "حدث خطأ";
-      } finally {
-        setLoader(false);
-      }
-    }
+        // Archetype Badge
+        const badge = document.getElementById("archetypeBadge");
+        badge.innerText = `${data.project_domain || data.archetype}`;
+        badge.classList.remove("hidden");
 
-    // 2. Text Blueprint
-    async function generateBlueprint() {
-      const prompt = document.getElementById("promptInput").value.trim();
-      const apiKey = getApiKey();
+        // Format Triage Results
+        let triageHtml = "";
+        if (data.vision_triage && data.vision_triage.length > 0) {
+          triageHtml = `<div class="bg-slate-950 p-2.5 rounded border border-slate-800 my-1 space-y-1">` +
+            data.vision_triage.map((t, idx) => `
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-slate-300">الصورة #${idx + 1}: ${t.description}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${t.role === 'reference_layout' ? 'bg-sky-950 text-sky-400 border border-sky-800' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'}">
+                  ${t.role === 'reference_layout' ? 'هيكل مرجعي' : 'أصل للحقن'}
+                </span>
+              </div>
+            `).join('') + `</div>`;
+        }
 
-      if (!prompt && uploadedImages.length === 0) {
-        alert("يرجى إدخال وصف المتجر أولاً.");
-        return;
-      }
+        let adviceHtml = `<div class="space-y-1.5">
+          ${triageHtml}
+          <div class="text-slate-200 mt-1">${data.advice || ''}</div>
+          ${data.clarification_question ? `<div class="p-2 bg-amber-500/10 border border-amber-500/20 rounded text-amber-300 font-medium text-[11px] mt-2">💡 سؤال استشاري: ${data.clarification_question}</div>` : ''}
+        </div>`;
 
-      setLoader(true, "جارٍ صياغة المخطط الهيكلي وتنسيق الأقسام...");
-      document.getElementById("analysisStatus").innerText = "جارٍ صياغة المخطط...";
-
-      try {
-        const res = await fetch("/api/plan", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
-          },
-          body: JSON.stringify({ prompt: prompt || "متجر إلكتروني متكامل" })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "فشل توليد المخطط");
-
-        currentBlueprint = data.blueprint;
-        document.getElementById("blueprintView").value = JSON.stringify(currentBlueprint, null, 2);
-        document.getElementById("btnBuild").disabled = false;
-
-        const summary = `تم اعتماد متطلبات المتجر بنجاح:\n` +
-                        `• النمط: ${currentBlueprint.theme?.mode || 'داكن'}\n` +
-                        `• عدد الأقسام الأساسية: ${currentBlueprint.sections?.length || 0} أقسام.\n` +
-                        `• يمكنك مراجعة الـ JSON من تبويب [المخطط الهيكلي] أو البدء بالتشييد الفوري.`;
-
-        logMessage("⚙️ اعتماد المخطط الهيكلي", summary.replace(/\n/g, '<br>'));
+        logMessage("🏛️ تقرير المستشار المعماري والفرز", adviceHtml);
         document.getElementById("analysisStatus").innerText = "المخطط جاهز للتشييد";
         updateLiveTokenEstimate();
+
       } catch (err) {
         alert("خطأ: " + err.message);
         document.getElementById("analysisStatus").innerText = "حدث خطأ";
@@ -499,19 +465,19 @@
       }
     }
 
-    // 3. Build Store
-    async function buildStore() {
+    // --- Build Dynamic Project ---
+    async function buildProject() {
       const blueprintText = document.getElementById("blueprintView").value.trim();
       const prompt = document.getElementById("promptInput").value.trim();
       const apiKey = getApiKey();
 
       if (!blueprintText) {
-        alert("يرجى إعداد المخطط الهيكلي أولاً.");
+        alert("يرجى إعداد المخطط الهيكلي أولاً عبر الاستشارة المعمارية.");
         return;
       }
 
-      setLoader(true, "جارٍ برمجة وتشييد المتجر بالكامل عند الحافة...");
-      document.getElementById("analysisStatus").innerText = "جارٍ التشييد والبرمجة...";
+      setLoader(true, "جارٍ التشييد والبرمجة الخفيفة عند الحافة...");
+      document.getElementById("analysisStatus").innerText = "جارٍ تشييد الواجهة...";
 
       try {
         const res = await fetch("/api/chat", {
@@ -521,14 +487,14 @@
             ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
           },
           body: JSON.stringify({
-            prompt: prompt || "قم ببناء المتجر بناءً على المخطط المرفق مع الحفاظ على كافة معايير الجودة والخفة.",
+            prompt: prompt || "شيد الواجهة كاملة بدقة هندسية بناءً على المخطط والأصول المحقونة.",
             blueprint: JSON.parse(blueprintText),
             embeddedAssets: uploadedImages.map(i => i.base64)
           })
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "فشل تشييد المتجر");
+        if (!res.ok) throw new Error(data.error || "فشل تشييد الواجهة");
 
         currentHtmlCode = data.code || "";
         document.getElementById("codeView").value = currentHtmlCode;
@@ -538,7 +504,7 @@
         switchTab('preview');
 
         runQualityGate(currentHtmlCode);
-        document.getElementById("analysisStatus").innerText = "تم النشر في المعاينة";
+        document.getElementById("analysisStatus").innerText = "تم النشر في المعاينة الحية";
       } catch (err) {
         alert("خطأ التشييد: " + err.message);
         document.getElementById("analysisStatus").innerText = "فشل التشييد";
