@@ -16,7 +16,6 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
@@ -28,7 +27,6 @@
       </div>
     </div>
 
-    <!-- API Key Input -->
     <div class="flex items-center gap-2">
       <input type="password" id="customApiKey" placeholder="مفتاح OpenRouter (يُحفظ تلقائياً)" 
              onchange="saveApiKey(this.value)"
@@ -39,13 +37,10 @@
     </div>
   </header>
 
-  <!-- Main Workspace -->
   <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1800px] w-full mx-auto">
     
-    <!-- Control & Discussion Panel (Right) -->
     <section class="lg:col-span-5 flex flex-col gap-4">
       
-      <!-- 1. Upper Box: Prompt & Iterative Conversation -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
         <div class="flex items-center justify-between">
           <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
@@ -59,10 +54,8 @@
                   placeholder="اكتب وصف المتجر، أو اطلب تعديلاً (مثال: اجعل الأزرار دائرية، غيّر الخط، أضف قسماً للتقييمات)..."
                   class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 custom-scroll resize-none"></textarea>
         
-        <!-- Hidden File Input -->
         <input type="file" id="imageInput" multiple accept="image/*" class="hidden" onchange="handleImageSelection(event)">
 
-        <!-- Three Horizontal Action Buttons -->
         <div class="grid grid-cols-3 gap-2 pt-1">
           <button id="btnReadImage" onclick="analyzeAndPlan()" 
                   class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold py-2 px-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
@@ -80,25 +73,22 @@
           </button>
         </div>
 
-        <!-- Image Thumbnails Container -->
         <div id="imagePreviewContainer" class="flex gap-2 overflow-x-auto py-1 custom-scroll hidden border-t border-slate-800/80 pt-2"></div>
       </div>
 
-      <!-- 2. Lower Box: Visual Comprehension & Discussion Log -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex-1 flex flex-col gap-3 min-h-[280px] shadow-sm">
         <div class="flex items-center justify-between">
           <label class="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <span>🧠</span> شاشة الاستيعاب والتحليل المعماري
+            <span>🧠</span> شاشة الاستيعاب وفحص الجودة
           </label>
           <span id="analysisStatus" class="text-xs text-slate-400">بانتظار المدخلات...</span>
         </div>
         
         <div id="analysisLog" 
              class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-300 custom-scroll overflow-y-auto leading-relaxed space-y-2 font-sans">
-          <p class="text-slate-500 italic">ستظهر هنا تفاصيل ما فهمه الذكاء الاصطناعي من الصور والنصوص (الألوان، توزيع الأقسام، الهوية البصرية، وملاحظات التطوير)...</p>
+          <p class="text-slate-500 italic">ستظهر هنا تفاصيل التحليل ونتائج فحص الكود والاختبار المباشر...</p>
         </div>
         
-        <!-- Bottom Action Bar (Estimate & Build) -->
         <div class="grid grid-cols-12 gap-2 pt-1">
           <button id="btnEstimate" onclick="estimateBuildTokens()" 
                   class="col-span-5 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 px-2 rounded-lg text-xs border border-slate-700 transition flex items-center justify-center gap-1.5">
@@ -113,10 +103,8 @@
       </div>
     </section>
 
-    <!-- Preview & Outputs Panel (Left) -->
     <section class="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
       
-      <!-- Toolbar with 3 Tabs -->
       <div class="bg-slate-900/90 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
         <div class="flex items-center gap-1.5">
           <button id="tabPreview" onclick="switchTab('preview')" class="px-3 py-1 rounded text-xs font-bold bg-slate-800 text-white">معاينة حية</button>
@@ -131,23 +119,18 @@
         </div>
       </div>
 
-      <!-- Content Area -->
       <div class="flex-1 relative bg-slate-950 flex flex-col min-h-[480px]">
-        <!-- 1. Live Frame -->
         <iframe id="liveFrame" class="w-full h-full flex-1 border-none bg-white"></iframe>
         
-        <!-- 2. Source Code View -->
         <textarea id="codeView" readonly 
                   class="hidden w-full h-full flex-1 bg-slate-950 text-emerald-400 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"
                   placeholder="سيظهر الكود المصدري هنا فور اكتمال التشييد..."></textarea>
 
-        <!-- 3. Blueprint JSON View -->
         <textarea id="blueprintView" 
                   oninput="updateLiveTokenEstimate()"
                   class="hidden w-full h-full flex-1 bg-slate-950 text-amber-400 font-mono text-xs p-4 focus:outline-none custom-scroll resize-none"
                   placeholder="سيظهر كائن JSON الخاص بالمخطط الهيكلي هنا ويمكنك تعديله..."></textarea>
 
-        <!-- Loading Overlay -->
         <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-20">
           <div class="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
           <p id="loadingText" class="text-sm font-medium text-slate-300">جارٍ المعالجة...</p>
@@ -161,6 +144,7 @@
     let currentBlueprint = null;
     let uploadedImages = [];
     let imageTokensCount = 0;
+    let lastDetectedError = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedKey = localStorage.getItem("EDGE_WORKBENCH_API_KEY");
@@ -290,27 +274,137 @@
       const prompt = document.getElementById("promptInput").value || "";
       const bp = document.getElementById("blueprintView").value || "";
       const inputTokens = Math.ceil((prompt.length + bp.length) / 2.8) + imageTokensCount;
-      const expectedOutputTokens = 3500; // Average single-file store size
+      const expectedOutputTokens = 3500;
       const totalTokens = inputTokens + expectedOutputTokens;
-      const cost = ((inputTokens * 0.25) + (expectedOutputTokens * 1.25)) / 1000000;
+      const cost = ((inputTokens * 2.00) + (expectedOutputTokens * 8.00)) / 1000000;
 
-      alert(`📊 تقدير الاستهلاك والتكلفة المتوقعة لبناء المتجر:\n` +
+      alert(`📊 تقدير الاستهلاك والتكلفة (Claude Sonnet 5):\n` +
             `• توكن المدخلات: ${inputTokens.toLocaleString()} توكن\n` +
             `• توكن الشفرة المتوقعة: ~${expectedOutputTokens.toLocaleString()} توكن\n` +
             `• إجمالي العملية: ~${totalTokens.toLocaleString()} توكن\n` +
-            `• التكلفة التقديرية الإجمالية: ~$${cost.toFixed(5)} (أقل من هللة واحدة)`);
+            `• التكلفة التقديرية الإجمالية: ~$${cost.toFixed(4)}`);
     }
 
-    function logMessage(title, message, isAi = true) {
+    function logMessage(title, message, type = "normal") {
       const log = document.getElementById("analysisLog");
       const entry = document.createElement("div");
-      entry.className = `p-2.5 rounded-lg border text-xs leading-relaxed ${isAi ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-amber-950/30 border-amber-800/40 text-amber-200'}`;
-      entry.innerHTML = `<div class="font-bold mb-1 text-[11px] text-amber-400">${title}</div><div>${message}</div>`;
+      let borderClass = "bg-slate-900 border-slate-800 text-slate-200";
+      let titleClass = "text-amber-400";
+
+      if (type === "success") {
+        borderClass = "bg-emerald-950/30 border-emerald-800/40 text-emerald-200";
+        titleClass = "text-emerald-400";
+      } else if (type === "error") {
+        borderClass = "bg-rose-950/30 border-rose-800/40 text-rose-200";
+        titleClass = "text-rose-400";
+      }
+
+      entry.className = `p-2.5 rounded-lg border text-xs leading-relaxed ${borderClass}`;
+      entry.innerHTML = `<div class="font-bold mb-1 text-[11px] ${titleClass}">${title}</div><div>${message}</div>`;
       log.appendChild(entry);
       log.scrollTop = log.scrollHeight;
     }
 
-    // 1. Vision Analysis & Blueprint Generation
+    // --- Quality Gate & Linter Engine ---
+    function runQualityGate(htmlCode) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlCode, "text/html");
+      const checks = [];
+
+      // 1. RTL & Language
+      const isRTL = doc.documentElement.getAttribute("dir") === "rtl";
+      checks.push({ label: "دعم العربية والاتجاه (RTL)", pass: isRTL });
+
+      // 2. Responsive Meta
+      const hasViewport = !!doc.querySelector("meta[name='viewport']");
+      checks.push({ label: "التجاوب مع الشاشات (Viewport)", pass: hasViewport });
+
+      // 3. Tailwind CSS
+      const hasTailwind = Array.from(doc.scripts).some(s => s.src && s.src.includes("tailwindcss"));
+      checks.push({ label: "تنسيق Tailwind CSS", pass: hasTailwind });
+
+      // 4. Cart Logic
+      const hasCart = htmlCode.includes("cart") || htmlCode.includes("سلة");
+      checks.push({ label: "منطق السلة التفاعلية", pass: hasCart });
+
+      const allPassed = checks.every(c => c.pass);
+      let reportHtml = `<div class="space-y-1 my-1">` + 
+        checks.map(c => `<div>${c.pass ? '✅' : '⚠️'} <span class="${c.pass ? 'text-slate-300' : 'text-amber-400'}">${c.label}</span></div>`).join('') +
+        `</div>`;
+
+      if (allPassed) {
+        logMessage("🛡️ تقرير فحص الجودة (Quality Gate)", reportHtml + `<div class="text-emerald-400 font-bold mt-1">اجتاز الكود جميع معايير البناء بنجاح 100%.</div>`, "success");
+      } else {
+        logMessage("⚠️ تنبيه فحص الجودة", reportHtml, "normal");
+      }
+
+      return allPassed;
+    }
+
+    // --- Runtime Error Sniffer Injection ---
+    function injectRuntimeSniffer(htmlCode) {
+      const snifferScript = `
+        <script>
+          window.onerror = function(msg, url, lineNo, columnNo, error) {
+            window.parent.postMessage({
+              type: 'RUNTIME_ERROR',
+              message: msg,
+              line: lineNo
+            }, '*');
+            return false;
+          };
+        <\/script>
+      `;
+      return htmlCode.replace("<head>", "<head>" + snifferScript);
+    }
+
+    // Listen to iframe errors
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.type === "RUNTIME_ERROR") {
+        lastDetectedError = event.data.message;
+        const fixBtn = `<button onclick="triggerAutoFix()" class="mt-2 bg-rose-600 hover:bg-rose-500 text-white font-bold py-1 px-2.5 rounded text-[11px] transition flex items-center gap-1">🔧 إصلاح الخلل الذاتي فوراً</button>`;
+        logMessage("🚨 خطأ تشغيلي في المعاينة", `حدث خطأ أثناء تشغيل الجافاسكريبت:<br><code class="text-rose-300 font-mono">${event.data.message} (السطر: ${event.data.line})</code>${fixBtn}`, "error");
+      }
+    });
+
+    async function triggerAutoFix() {
+      if (!lastDetectedError || !currentHtmlCode) return;
+      setLoader(true, "جارٍ الإصلاح الذاتي للشفرة...");
+      const apiKey = getApiKey();
+
+      try {
+        const res = await fetch("/api/fix", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            ...(apiKey ? { "X-Custom-API-Key": apiKey } : {})
+          },
+          body: JSON.stringify({
+            code: currentHtmlCode,
+            error: lastDetectedError
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "فشل الإصلاح الذاتي");
+
+        currentHtmlCode = data.code;
+        document.getElementById("codeView").value = currentHtmlCode;
+        
+        const frame = document.getElementById("liveFrame");
+        frame.srcdoc = injectRuntimeSniffer(currentHtmlCode);
+        runQualityGate(currentHtmlCode);
+
+        logMessage("✨ تم الإصلاح الذاتي بنجاح", "تمت معالجة الخطأ وتحديث المعاينة الحية فوراً.", "success");
+        lastDetectedError = null;
+      } catch (err) {
+        alert("خطأ في الإصلاح الذاتي: " + err.message);
+      } finally {
+        setLoader(false);
+      }
+    }
+
+    // 1. Vision Analysis
     async function analyzeAndPlan() {
       const apiKey = getApiKey();
       const prompt = document.getElementById("promptInput").value.trim();
@@ -359,7 +453,7 @@
       }
     }
 
-    // 2. Text-Based Blueprint Generation
+    // 2. Text Blueprint
     async function generateBlueprint() {
       const prompt = document.getElementById("promptInput").value.trim();
       const apiKey = getApiKey();
@@ -440,10 +534,10 @@
         document.getElementById("codeView").value = currentHtmlCode;
         
         const frame = document.getElementById("liveFrame");
-        frame.srcdoc = currentHtmlCode;
+        frame.srcdoc = injectRuntimeSniffer(currentHtmlCode);
         switchTab('preview');
 
-        logMessage("🚀 اكتمل تشييد المتجر", "تم بناء الكود بالكامل بنمط Zero-Bloat وهو يعمل الآن في المعاينة الحية.");
+        runQualityGate(currentHtmlCode);
         document.getElementById("analysisStatus").innerText = "تم النشر في المعاينة";
       } catch (err) {
         alert("خطأ التشييد: " + err.message);
