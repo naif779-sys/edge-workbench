@@ -3,78 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJ AGENTIC | متجر الساعات الفاخرة</title>
+    <title>NJ AGENTIC | تشكيلة الساعات الحصرية</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #0b0b0f; color: #f3f4f6; }
-        .gold-gradient { background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #aa7c11 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .bg-gold { background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%); }
-        .glass-card { background: rgba(22, 22, 30, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        body { font-family: 'Tajawal', sans-serif; }
+        .gold-text {
+            background: linear-gradient(135deg, #d4af37, #fff8dc, #aa771c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-gradient { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); }
+        /* إخفاء السهم الافتراضي في الأسئلة الشائعة */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
     </style>
 </head>
-<body class="antialiased selection:bg-yellow-500 selection:text-black">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-black scroll-smooth">
 
-    <header class="sticky top-0 z-50 glass-card border-b border-gray-800/50 px-6 py-4 flex justify-between items-center max-w-7xl mx-auto rounded-b-2xl mt-1">
-        <div class="text-2xl font-black tracking-wider gold-gradient">NJ AGENTIC</div>
-        <nav class="hidden md:flex gap-8 text-sm font-medium text-gray-300">
-            <a href="#hero" class="hover:text-yellow-400 transition">الرئيسية</a>
-            <a href="#catalog" class="hover:text-yellow-400 transition">الكتالوج الفاخر</a>
-        </nav>
-        <a href="https://wa.me/966500000000" target="_blank" class="bg-gold text-black font-bold px-5 py-2 rounded-full text-sm hover:opacity-90 transition flex items-center gap-2">
-            <i class="fab fa-whatsapp text-lg"></i> تواصل معنا
-        </a>
+    <!-- شريط الإعلانات العلوي -->
+    <div class="bg-amber-500 text-zinc-950 text-xs md:text-sm font-bold text-center py-2 px-4">
+        شحن مجاني لطلبات الجملة | ضمان لمدة سنة كاملة على جميع الإصدارات | الدفع عند الاستلام متاح
+    </div>
+
+    <!-- الهيدر -->
+    <header class="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-wider gold-text">NJ AGENTIC</a>
+            <nav class="hidden md:flex space-x-8 space-x-reverse font-medium text-zinc-300">
+                <a href="#hero" class="hover:text-amber-400 transition">الرئيسية</a>
+                <a href="#catalog" class="hover:text-amber-400 transition">التشكيلة</a>
+                <a href="#reviews" class="hover:text-amber-400 transition">الآراء</a>
+                <a href="#faq" class="hover:text-amber-400 transition">الأسئلة الشائعة</a>
+            </nav>
+            <a href="https://wa.me/966537303078" target="_blank" class="gold-gradient text-zinc-950 font-bold px-5 py-2.5 rounded-full hover:brightness-110 transition shadow-lg text-sm flex items-center gap-2">
+                <span>الطلب عبر واتساب</span>
+            </a>
+        </div>
     </header>
 
-    <section id="hero" class="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
-        <div class="space-y-6">
-            <span class="inline-block bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide">
-                إصدارات فاخرة 2026
-            </span>
-            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
-                الفخامة والدقة في <span class="gold-gradient">معصمك</span>
-            </h1>
-            <p class="text-gray-400 text-lg leading-relaxed">
-                تشكيلة حصرية مختارة من أرقى الساعات الذكية والفاخرة بلمسات نادرة واستثنائية.
-            </p>
-        </div>
-        <div class="relative flex justify-center">
-            <img src="IMG-20260805-WA0282.jpg" alt="Watch Showcase" class="relative z-10 rounded-3xl object-cover max-h-[400px] shadow-2xl border border-gray-800">
-        </div>
-    </section>
-
-    <section id="catalog" class="max-w-7xl mx-auto px-6 py-12">
-        <h2 class="text-3xl font-bold gold-gradient mb-8">تشكيلة الساعات المختارة</h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="glass-card rounded-2xl overflow-hidden p-6 space-y-4">
-                <img src="IMG-20260805-WA0282.jpg" class="w-full h-56 object-cover rounded-xl">
-                <h3 class="text-xl font-bold">ساعة كرونوغراف الماجستيك</h3>
-                <div class="flex justify-between items-center">
-                    <span class="text-2xl font-black text-white">399 ر.س</span>
-                    <a href="https://wa.me/966500000000?text=طلب%20ساعة%20الماجستيك" target="_blank" class="bg-gold text-black font-bold px-4 py-2 rounded-xl text-sm">اطلب الآن</a>
+    <!-- الواجهة الرئيسية -->
+    <section id="hero" class="relative py-16 lg:py-24 overflow-hidden border-b border-zinc-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6 text-center lg:text-right">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold">إصدارات حصرية 2026</span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                    أناقة لا تضاهى، <br> <span class="gold-text">وحضور لا يُنسى</span>
+                </h1>
+                <p class="text-zinc-400 text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                    اكتشف تشكيلتنا الحديثة من الساعات المصممة بعناية لتلائم ذوقك الرفيع. جودة استثنائية، تفاصيل دقيقة، وضمان شامل يمنحك راحة البال.
+                </p>
+                <div class="pt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
+                    <a href="#catalog" class="gold-gradient text-zinc-950 font-bold px-8 py-3.5 rounded-xl hover:scale-105 transition shadow-xl">تصفح التشكيلة الآن</a>
                 </div>
             </div>
-            <div class="glass-card rounded-2xl overflow-hidden p-6 space-y-4">
-                <img src="IMG-20260805-WA0283.jpg" class="w-full h-56 object-cover rounded-xl">
-                <h3 class="text-xl font-bold">ساعة سمارت أوكسجين برو</h3>
-                <div class="flex justify-between items-center">
-                    <span class="text-2xl font-black text-white">299 ر.س</span>
-                    <a href="https://wa.me/966500000000?text=طلب%20ساعة%20أوكسجين" target="_blank" class="bg-gold text-black font-bold px-4 py-2 rounded-xl text-sm">اطلب الآن</a>
+            
+            <!-- عرض الصور بشكل احترافي في الواجهة -->
+            <div class="relative w-full max-w-lg mx-auto lg:max-w-none grid grid-cols-2 gap-4">
+                <div class="space-y-4">
+                    <img src="watch1.jpg" alt="ساعة 1" class="w-full rounded-2xl shadow-2xl border border-zinc-800 object-cover aspect-[4/5] hover:border-amber-500/50 transition">
+                    <img src="watch2.jpg" alt="ساعة 2" class="w-full rounded-2xl shadow-2xl border border-zinc-800 object-cover aspect-square hover:border-amber-500/50 transition">
                 </div>
-            </div>
-            <div class="glass-card rounded-2xl overflow-hidden p-6 space-y-4">
-                <img src="IMG-20260805-WA0284.jpg" class="w-full h-56 object-cover rounded-xl">
-                <h3 class="text-xl font-bold">ساعة أولترا تيتانيوم</h3>
-                <div class="flex justify-between items-center">
-                    <span class="text-2xl font-black text-white">449 ر.س</span>
-                    <a href="https://wa.me/966500000000?text=طلب%20ساعة%20تيتانيوم" target="_blank" class="bg-gold text-black font-bold px-4 py-2 rounded-xl text-sm">اطلب الآن</a>
+                <div class="flex items-center">
+                    <img src="watch3.jpg" alt="ساعة 3" class="w-full rounded-2xl shadow-2xl border border-zinc-800 object-cover aspect-[3/4] hover:border-amber-500/50 transition transform scale-105">
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="border-t border-gray-800 text-center py-8 text-gray-500 text-sm">
+    <!-- كتالوج المنتجات -->
+    <section id="catalog" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center space-y-3 mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold">التشكيلة المختارة</h2>
+            <p class="text-zinc-400">جميع الإصدارات تأتي بضمان سنة وشحن مجاني لطلبات الجملة</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- المنتج الأول -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition group">
+                <div class="aspect-[4/5] bg-zinc-950 overflow-hidden relative">
+                    <span class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10">خصم لفترة محدودة</span>
+                    <img src="watch1.jpg" alt="ساعة بميناء أزرق سماوي" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-6 flex flex-col flex-grow space-y-4">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-zinc-100">ساعة عصرية بميناء أزرق سماوي</h3>
+                        </div>
+                        <div class="flex text-amber-400 text-sm mb-3">
+                            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            <span class="text-zinc-500 mr-2 font-medium">(4.9)</span>
+                        </div>
+                        <p class="text-zinc-400 text-sm leading-relaxed">تصميم حديث يلفت الأنظار، مصنوعة من الستيل المقاوم للصدأ لتناسب كافة الأوقات.</p>
+                    </div>
+                    <div class="pt-4 mt-auto border-t border-zinc-800 flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-zinc-500 text-sm line-through">145 ر.س</span>
+                            <span class="text-2xl font-black text-amber-400">120 <span class="text-sm font-normal text-zinc-400">ر.س</span></span>
+                        </div>
+                        <a href="https://wa.me/966537303078?text=السلام%20عليكم،%20أرغب%20في%20طلب%20الساعة%20ذات%20الميناء%20الأزرق%20السماوي%20بسعر%20120%20ريال" target="_blank" class="bg-zinc-100 hover:bg-amber-400 text-zinc-950 font-bold px-5 py-2.5 rounded-lg text-sm transition">اطلب الآن</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المنتج الثاني -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition group">
+                <div class="aspect-[4/5] bg-zinc-950 overflow-hidden relative">
+                    <img src="watch2.jpg" alt="ساعة بميناء أسود" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-6 flex flex-col flex-grow space-y-4">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-zinc-100">ساعة فاخرة بميناء أسود وإطار ثماني</h3>
+                        </div>
+                        <div class="flex text-amber-400 text-sm mb-3">
+                            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            <span class="text-zinc-500 mr-2 font-medium">(4.8)</span>
+                        </div>
+                        <p class="text-zinc-400 text-sm leading-relaxed">تصميم كلاسيكي جريء يعكس القوة والفخامة، مناسبة للاستخدام اليومي والرسمي.</p>
+                    </div>
+                    <div class="pt-4 mt-auto border-t border-zinc-800 flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-zinc-500 text-sm line-through">145 ر.س</span>
+                            <span class="text-2xl font-black text-amber-400">120 <span class="text-sm font-normal text-zinc-400">ر.س</span></span>
+                        </div>
+                        <a href="https://wa.me/966537303078?text=السلام%20عليكم،%20أرغب%20في%20طلب%20الساعة%20ذات%20الميناء%20الأسود%20بسعر%20120%20ريال" target="_blank" class="bg-zinc-100 hover:bg-amber-400 text-zinc-950 font-bold px-5 py-2.5 rounded-lg text-sm transition">اطلب الآن</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المنتج الثالث -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition group">
+                <div class="aspect-[4/5] bg-zinc-950 overflow-hidden relative">
+                    <img src="watch3.jpg" alt="ساعة بميناء تركوازي" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500">
+                </div>
+                <div class="p-6 flex flex-col flex-grow space-y-4">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-zinc-100">ساعة أنيقة بميناء تركوازي</h3>
+                        </div>
+                        <div class="flex text-amber-400 text-sm mb-3">
+                            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            <span class="text-zinc-500 mr-2 font-medium">(5.0)</span>
+                        </div>
+                        <p class="text-zinc-400 text-sm leading-relaxed">لون فريد ومميز يضفي لمسة من الحيوية على معصمك، دقة في الماكينة وراحة في اللبس.</p>
+                    </div>
+                    <div class="pt-4 mt-auto border-t border-zinc-800 flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-zinc-500 text-sm line-through">145 ر.س</span>
+                            <span class="text-2xl font-black text-amber-400">120 <span class="text-sm font-normal text-zinc-400">ر.س</span></span>
+                        </div>
+                        <a href="https://wa.me/966537303078?text=السلام%20عليكم،%20أرغب%20في%20طلب%20الساعة%20ذات%20الميناء%20التركوازي%20بسعر%20120%20ريال" target="_blank" class="bg-zinc-100 hover:bg-amber-400 text-zinc-950 font-bold px-5 py-2.5 rounded-lg text-sm transition">اطلب الآن</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- قسم آراء العملاء -->
+    <section id="reviews" class="py-16 bg-zinc-900/50 border-y border-zinc-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12">ماذا يقول عملاؤنا؟</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- التقييم الأول -->
+                <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                    <div class="flex text-amber-400 mb-4">★★★★★</div>
+                    <p class="text-zinc-300 italic mb-4">"الساعة فخمة جداً وتواجه، والجودة فاقت توقعاتي مقارنة بالسعر. التوصيل كان سريع والتعامل راقي جداً."</p>
+                    <div class="font-bold text-sm text-zinc-100">- أحمد س.</div>
+                </div>
+                <!-- التقييم الثاني -->
+                <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                    <div class="flex text-amber-400 mb-4">★★★★★</div>
+                    <p class="text-zinc-300 italic mb-4">"طلبت كمية كجملة وحصلت على الشحن المجاني. التغليف ممتاز جداً وينفع كإهداء. أنصح بالتعامل معهم بشدة."</p>
+                    <div class="font-bold text-sm text-zinc-100">- خالد م.</div>
+                </div>
+                <!-- التقييم الثالث -->
+                <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                    <div class="flex text-amber-400 mb-4">★★★★★</div>
+                    <p class="text-zinc-300 italic mb-4">"سعر 120 ريال على هذي الجودة يعتبر لقطة! وميزة الدفع عند الاستلام ريحتني كثير وخلتني أطلب وأنا متطمن."</p>
+                    <div class="font-bold text-sm text-zinc-100">- محمد ا.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الأسئلة الشائعة -->
+    <section id="faq" class="py-20 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center mb-10">الأسئلة الشائعة</h2>
+        <div class="space-y-4">
+            
+            <details class="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-5 text-zinc-100 hover:bg-zinc-800/50 transition">
+                    <span>كم تستغرق مدة التوصيل؟</span>
+                    <span class="transition group-open:rotate-180">▼</span>
+                </summary>
+                <div class="p-5 pt-0 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800 mt-2">
+                    يستغرق التوصيل عادة من 2 إلى 5 أيام عمل لكافة مدن ومناطق المملكة العربية السعودية.
+                </div>
+            </details>
+
+            <details class="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-5 text-zinc-100 hover:bg-zinc-800/50 transition">
+                    <span>هل خدمة الدفع عند الاستلام متوفرة؟</span>
+                    <span class="transition group-open:rotate-180">▼</span>
+                </summary>
+                <div class="p-5 pt-0 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800 mt-2">
+                    نعم، بكل تأكيد. نوفر خدمة الدفع عند الاستلام لضمان راحتك ومعاينتك للمنتج قبل الدفع.
+                </div>
+            </details>
+
+            <details class="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-5 text-zinc-100 hover:bg-zinc-800/50 transition">
+                    <span>ماذا يشمل ضمان السنة؟</span>
+                    <span class="transition group-open:rotate-180">▼</span>
+                </summary>
+                <div class="p-5 pt-0 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800 mt-2">
+                    الضمان الذهبي لمدة سنة كاملة يشمل أي عيوب مصنعية في الماكينة، بالإضافة إلى مقاومة الماء وتغير لون الإطار الثابت.
+                </div>
+            </details>
+
+            <details class="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-5 text-zinc-100 hover:bg-zinc-800/50 transition">
+                    <span>كيف أحصل على شحن مجاني؟</span>
+                    <span class="transition group-open:rotate-180">▼</span>
+                </summary>
+                <div class="p-5 pt-0 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800 mt-2">
+                    يتم تطبيق الشحن المجاني تلقائياً على جميع طلبات الجملة عند تواصلك معنا لطلب أكثر من قطعة.
+                </div>
+            </details>
+
+        </div>
+    </section>
+
+    <!-- الفوتر -->
+    <footer class="bg-zinc-950 py-8 border-t border-zinc-800 text-center text-zinc-500 text-sm">
         <p>© 2026 NJ AGENTIC. جميع الحقوق محفوظة.</p>
     </footer>
 
